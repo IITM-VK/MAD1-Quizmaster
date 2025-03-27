@@ -1,0 +1,62 @@
+{% extends "user_base.html" %}
+
+{% block title %}Test - QuizVerse{% endblock %}
+
+{% block additional_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/test.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h4>Test</h4>
+
+    <!-- Filter Section -->
+    <div class="card p-3">
+        <div class="d-flex flex-wrap gap-2">
+            <select class="form-select" style="max-width: 200px;">
+                <option selected>Select Program</option>
+            </select>
+            <select class="form-select" style="max-width: 200px;">
+                <option selected>Select Discipline</option>
+            </select>
+            <select class="form-select" style="max-width: 200px;">
+                <option selected>Select Level</option>
+            </select>
+            <select class="form-select" style="max-width: 200px;">
+                <option selected>Select Subject</option>
+            </select>
+            <select class="form-select" style="max-width: 200px;">
+                <option selected>Select Chapter</option>
+            </select>
+            <button class="btn btn-outline-primary">Apply Filters</button>
+            <button class="btn btn-outline-secondary">Clear Filters</button>
+        </div>
+    </div>
+
+    <!-- Test List -->
+    <div class="card mt-3">
+        <div class="list-group">
+            {% for test in tests %}
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="me-2">📄</span>
+                    <strong>{{ test.name }}</strong>
+                    <span class="text-muted ms-2">- {{ test.code }}</span>
+                    <div class="small text-muted">
+                        ⏰ {{ test.time }} | 📅 {{ test.date }}
+                    </div>
+                </div>
+                <div>
+                    <span class="me-3">📊</span>
+                    <a href="{{ test.url }}" class="text-primary text-decoration-none">Launch Test</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_js %}
+<script src="{{ url_for('static', filename='js/test.js') }}"></script>
+{% endblock %}

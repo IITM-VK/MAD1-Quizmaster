@@ -1,0 +1,135 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Arial', sans-serif;
+}
+
+.sc-container {
+    max-width: 95%;
+    margin: 20px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.filters select {
+    width: 200px;
+}
+
+.quick-actions {
+    margin-bottom: 20px;
+}
+
+.btn {
+    margin: 5px;
+}
+
+/* Flash Messages */
+.flash-messages {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1050;
+    max-width: 400px;
+}
+
+.flash-messages .alert {
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 10px 15px;
+    font-size: 14px;
+    animation: fadeIn 0.5s ease-in, fadeOut 0.5s 4.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+/* Tabs Styling */
+.nav-tabs .nav-link {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Table Header */
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.table-header h4 {
+    margin: 0;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #007bff;
+    color: white;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-warning, .btn-danger {
+    font-size: 14px;
+    padding: 5px 10px;
+}
+
+/* Modals */
+.modal-header {
+    background-color: #007bff;
+    color: white;
+}

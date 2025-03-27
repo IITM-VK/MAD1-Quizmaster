@@ -1,0 +1,508 @@
+{% extends "admin_base.html" %}
+
+{% block title %} Quiz Management {% endblock %}
+
+{% block additional_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/quiz_management.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link {% if request.args.get('tab') == 'quizzes' or not request.args.get('tab') %}active{% endif %}" 
+               href="{{ url_for('quiz_management', tab='quizzes') }}">Quizzes</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.args.get('tab') == 'questions' %}active{% endif %}" 
+               href="{{ url_for('quiz_management', tab='questions') }}">Questions</a>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3">
+        
+        <!-- Quizzes Tab -->
+        <div class="tab-pane fade {% if request.args.get('tab') == 'quizzes' or not request.args.get('tab') %}show active{% endif %}" id="quizzes">
+            <form method="GET" action="{{ url_for('quiz_management') }}" class="filters">
+                <input type="hidden" name="tab" value="quizzes">
+                <select class="form-select" id="quizProgramFilter" name="program">
+                    <option value="">Select Program</option>
+                    {% for program in programs %}
+                        <option value="{{ program.id }}" {% if request.args.get('program')|int == program.id and request.args.get('tab') == 'quizzes' %}selected{% endif %}>
+                            {{ program.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <select class="form-select" id="quizDisciplineFilter" name="discipline" disabled>
+                    <option value="">Select Discipline</option>
+                    {% for discipline in disciplines %}
+                        <option value="{{ discipline.id }}" {% if request.args.get('discipline')|int == discipline.id and request.args.get('tab') == 'quizzes' %}selected{% endif %}>
+                            {{ discipline.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <select class="form-select" id="quizLevelFilter" name="level" disabled>
+                    <option value="">Select Level</option>
+                    {% for level in levels %}
+                        <option value="{{ level.id }}" {% if request.args.get('level')|int == level.id and request.args.get('tab') == 'quizzes' %}selected{% endif %}>
+                            {{ level.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <select class="form-select" id="quizSubjectFilter" name="subject" disabled>
+                    <option value="">Select Subject</option>
+                    {% for subject in subjects %}
+                        <option value="{{ subject.id }}" {% if request.args.get('subject')|int == subject.id and request.args.get('tab') == 'quizzes' %}selected{% endif %}>
+                            {{ subject.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <select class="form-select" id="quizChapterFilter" name="chapter" disabled>
+                    <option value="">Select Chapter</option>
+                    {% for chapter in chapters %}
+                        <option value="{{ chapter.id }}" {% if request.args.get('chapter')|int == chapter.id  and request.args.get('tab') == 'quizzes' %}selected{% endif %}>
+                            {{ chapter.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="{{ url_for('quiz_management', tab='quizzes') }}" class="btn btn-secondary">Clear Filters</a>
+            </form>
+
+            <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#addQuizModal">➕ Add Quiz</button>
+
+            <table class="table table-striped mt-3">
+                <thead>
+                    <tr>
+                        <th>Quiz Title</th>
+                        <th>Chapter Name</th>
+                        <th>Date</th>
+                        <th>Duration</th>
+                        <th>Total Marks</th>
+                        <th>Passing Marks</th>
+                        <th>Total Questions</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quiz in quizzes %}
+                    <tr>
+                        <td>{{ quiz.title }}</td>
+                        <td>{{ quiz.chapter.name }}</td>
+                        <td>{{ quiz.date }}</td>
+                        <td>{{ quiz.duration }} mins</td>
+                        <td>{{ quiz.total_marks }}</td>
+                        <td>{{ quiz.passing_marks }}</td>
+                        <td>{{ quiz.questions|length }}</td>
+                        <td>{{ quiz.description }}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editQuizModal{{ quiz.id }}">✏️ Edit</button>
+                            <form method="POST" action="{{ url_for('delete_quiz', id=quiz.id) }}" onsubmit="return confirm('Are you sure?');">
+                                <button type="submit" class="btn btn-danger btn-sm">🗑️ Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Questions Tab -->
+        <div class="tab-pane fade {% if request.args.get('tab') == 'questions' %}show active{% endif %}" id="questions">
+            <form method="GET" action="{{ url_for('quiz_management') }}" class="filters">
+                <input type="hidden" name="tab" value="questions">
+                <select class="form-select" id="questionProgramFilter" name="program">
+                    <option value="">Select Program</option>
+                    {% for program in programs %}
+                        <option value="{{ program.id }}" {% if request.args.get('program')|int == program.id and request.args.get('tab') == 'questions' %}selected{% endif %}>
+                            {{ program.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <select class="form-select" id="questionDisciplineFilter" name="discipline" disabled>
+                    <option value="">Select Discipline</option>
+                    {% for discipline in disciplines %}
+                        <option value="{{ discipline.id }}" {% if request.args.get('discipline')|int == discipline.id and request.args.get('tab') == 'questions' %}selected{% endif %}>
+                            {{ discipline.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <select class="form-select" id="questionLevelFilter" name="level" disabled>
+                    <option value="">Select Level</option>
+                    {% for level in levels %}
+                        <option value="{{ level.id }}" {% if request.args.get('level')|int == level.id and request.args.get('tab') == 'questions' %}selected{% endif %}>
+                            {{ level.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <select class="form-select" id="questionSubjectFilter" name="subject" disabled>
+                    <option value="">Select Subject</option>
+                    {% for subject in subjects %}
+                        <option value="{{ subject.id }}" {% if request.args.get('subject')|int == subject.id and request.args.get('tab') == 'questions' %}selected{% endif %}>
+                            {{ subject.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <select class="form-select" id="questionChapterFilter" name="chapter" disabled>
+                    <option value="">Select Chapter</option>
+                    {% for chapter in chapters %}
+                        <option value="{{ chapter.id }}" {% if request.args.get('chapter')|int == chapter.id and request.args.get('tab') == 'questions' %}selected{% endif %}>
+                            {{ chapter.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <select class="form-select" id="questionQuizFilter" name="quiz" disabled>
+                    <option value="">Select Quiz</option>
+                    {% for quiz in quizzes %}
+                        <option value="{{ quiz.id }}" {% if request.args.get('quiz')|int == quiz.id and request.args.get('tab') == 'questions' %}selected{% endif %}>
+                            {{ quiz.title }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="{{ url_for('quiz_management', tab='questions') }}" class="btn btn-secondary">Clear Filters</a>
+            </form>
+
+            <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#addQuestionModal">➕ Add Question</button>
+
+            <table class="table table-striped mt-3">
+                <thead>
+                    <tr>
+                        <th>Question Title</th>
+                        <th>Quiz Title</th>
+                        <th>Marks per Question</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for question in questions %}
+                    <tr>
+                        <td>{{ question.title }}</td>
+                        <td>{{ question.quiz.title }}</td>
+                        <td>{{ question.marks }}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editQuestionModal{{ question.id }}">✏️ Edit</button>
+                            <form method="POST" action="{{ url_for('delete_question', id=question.id) }}" onsubmit="return confirm('Are you sure?');">
+                                <button type="submit" class="btn btn-danger btn-sm">🗑️ Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% include 'modals/add_quiz_modal.html' %}
+{% include 'modals/add_question_modal.html' %}
+{% include 'modals/edit_quiz_modal.html' %}
+{% include 'modals/edit_question_modal.html' %}
+{% endblock %}
+
+{% block additional_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let quizProgramFilter = document.getElementById("quizProgramFilter");
+    let quizDisciplineFilter = document.getElementById("quizDisciplineFilter");
+    let quizLevelFilter = document.getElementById("quizLevelFilter");
+    let quizSubjectFilter = document.getElementById("quizSubjectFilter");
+    let quizChapterFilter = document.getElementById("quizChapterFilter");
+
+    function updateSubjects() {
+        let programId = quizProgramFilter.value || "";
+        let disciplineId = quizDisciplineFilter.value || "";
+        let levelId = quizLevelFilter.value || "";
+
+        if (programId || disciplineId || levelId) {
+            fetch(`/get_subjects?program_id=${programId}&discipline_id=${disciplineId}&level_id=${levelId}`)
+                .then(response => response.json())
+                .then(data => {
+                    quizSubjectFilter.innerHTML = '<option value="">Select Subject</option>';
+                    quizSubjectFilter.disabled = data.length === 0;
+
+                    data.forEach(subject => {
+                        let option = new Option(subject.name, subject.id);
+                        quizSubjectFilter.add(option);
+                    });
+
+                    let selectedSubject = "{{ request.args.get('subject', '') }}";
+                    if (selectedSubject) {
+                        quizSubjectFilter.value = selectedSubject;
+                    }
+                });
+        } else {
+            quizSubjectFilter.innerHTML = '<option value="">Select Subject</option>';
+            quizSubjectFilter.disabled = true;
+        }
+    }
+
+    function updateChapters() {
+        let subjectId = quizSubjectFilter.value;
+        if (subjectId) {
+            fetch(`/get_chapters/${subjectId}`)
+                .then(response => response.json())
+                .then(data => {
+                    quizChapterFilter.innerHTML = '<option value="">Select Chapter</option>';
+                    quizChapterFilter.disabled = data.length === 0;
+
+                    data.forEach(chapter => {
+                        let option = new Option(chapter.name, chapter.id);
+                        quizChapterFilter.add(option);
+                    });
+
+                    let selectedChapter = "{{ request.args.get('chapter', '') }}";
+                    if (selectedChapter) {
+                        quizChapterFilter.value = selectedChapter;
+                    }
+                });
+        } else {
+            quizChapterFilter.innerHTML = '<option value="">Select Chapter</option>';
+            quizChapterFilter.disabled = true;
+        }
+    }
+
+    function updateDisciplines() {
+        let programId = quizProgramFilter.value;
+        if (programId) {
+            fetch(`/get_disciplines/${programId}`)
+                .then(response => response.json())
+                .then(data => {
+                    quizDisciplineFilter.innerHTML = '<option value="">Select Discipline</option>';
+                    quizLevelFilter.innerHTML = '<option value="">Select Level</option>';
+                    quizSubjectFilter.innerHTML = '<option value="">Select Subject</option>';
+                    quizChapterFilter.innerHTML = '<option value="">Select Chapter</option>';
+                    quizDisciplineFilter.disabled = true;
+                    quizLevelFilter.disabled = true;
+                    quizSubjectFilter.disabled = true;
+                    quizChapterFilter.disabled = true;
+
+                    if (data.length > 0) {
+                        quizDisciplineFilter.disabled = false;
+                        data.forEach(discipline => {
+                            let option = new Option(discipline.name, discipline.id);
+                            quizDisciplineFilter.add(option);
+                        });
+                    }
+                    updateSubjects();
+                });
+        } else {
+            quizDisciplineFilter.innerHTML = '<option value="">Select Discipline</option>';
+            quizLevelFilter.innerHTML = '<option value="">Select Level</option>';
+            quizSubjectFilter.innerHTML = '<option value="">Select Subject</option>';
+            quizChapterFilter.innerHTML = '<option value="">Select Chapter</option>';
+            quizDisciplineFilter.disabled = true;
+            quizLevelFilter.disabled = true;
+            quizSubjectFilter.disabled = true;
+            quizChapterFilter.disabled = true;
+        }
+    }
+
+    function updateLevels() {
+        let disciplineId = quizDisciplineFilter.value;
+        if (disciplineId) {
+            fetch(`/get_levels/${disciplineId}`)
+                .then(response => response.json())
+                .then(data => {
+                    quizLevelFilter.innerHTML = '<option value="">Select Level</option>';
+                    quizSubjectFilter.innerHTML = '<option value="">Select Subject</option>';
+                    quizChapterFilter.innerHTML = '<option value="">Select Chapter</option>';
+                    quizLevelFilter.disabled = true;
+                    quizSubjectFilter.disabled = true;
+                    quizChapterFilter.disabled = true;
+
+                    if (data.length > 0) {
+                        quizLevelFilter.disabled = false;
+                        data.forEach(level => {
+                            let option = new Option(level.name, level.id);
+                            quizLevelFilter.add(option);
+                        });
+                    }
+                    updateSubjects();
+                });
+        } else {
+            quizLevelFilter.innerHTML = '<option value="">Select Level</option>';
+            quizSubjectFilter.innerHTML = '<option value="">Select Subject</option>';
+            quizChapterFilter.innerHTML = '<option value="">Select Chapter</option>';
+            quizLevelFilter.disabled = true;
+            quizSubjectFilter.disabled = true;
+            quizChapterFilter.disabled = true;
+        }
+    }
+
+    // Add event listeners
+    quizProgramFilter.addEventListener("change", updateDisciplines);
+    quizDisciplineFilter.addEventListener("change", updateLevels);
+    quizLevelFilter.addEventListener("change", updateSubjects);
+    quizSubjectFilter.addEventListener("change", updateChapters);
+
+    // Ensure subjects are loaded properly on page load if filters were applied
+    updateSubjects();
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let questionProgramFilter = document.getElementById("questionProgramFilter");
+    let questionDisciplineFilter = document.getElementById("questionDisciplineFilter");
+    let questionLevelFilter = document.getElementById("questionLevelFilter");
+    let questionSubjectFilter = document.getElementById("questionSubjectFilter");
+    let questionChapterFilter = document.getElementById("questionChapterFilter");
+    let questionQuizFilter = document.getElementById("questionQuizFilter");
+
+    function updateSubjects() {
+        let programId = questionProgramFilter.value || "";
+        let disciplineId = questionDisciplineFilter.value || "";
+        let levelId = questionLevelFilter.value || "";
+
+        if (programId || disciplineId || levelId) {
+            fetch(`/get_subjects?program_id=${programId}&discipline_id=${disciplineId}&level_id=${levelId}`)
+                .then(response => response.json())
+                .then(data => {
+                    questionSubjectFilter.innerHTML = '<option value="">Select Subject</option>';
+                    questionSubjectFilter.disabled = data.length === 0;
+
+                    data.forEach(subject => {
+                        let option = new Option(subject.name, subject.id);
+                        questionSubjectFilter.add(option);
+                    });
+                });
+        } else {
+            questionSubjectFilter.innerHTML = '<option value="">Select Subject</option>';
+            questionSubjectFilter.disabled = true;
+        }
+    }
+
+    function updateChapters() {
+        let subjectId = questionSubjectFilter.value;
+        if (subjectId) {
+            fetch(`/get_chapters/${subjectId}`)
+                .then(response => response.json())
+                .then(data => {
+                    questionChapterFilter.innerHTML = '<option value="">Select Chapter</option>';
+                    questionChapterFilter.disabled = data.length === 0;
+
+                    data.forEach(chapter => {
+                        let option = new Option(chapter.name, chapter.id);
+                        questionChapterFilter.add(option);
+                    });
+                });
+        } else {
+            questionChapterFilter.innerHTML = '<option value="">Select Chapter</option>';
+            questionChapterFilter.disabled = true;
+        }
+    }
+
+    function updateQuizzes() {
+        let chapterId = questionChapterFilter.value;
+        if (chapterId) {
+            fetch(`/get_quizzes/${chapterId}`)
+                .then(response => response.json())
+                .then(data => {
+                    questionQuizFilter.innerHTML = '<option value="">Select Quiz</option>';
+                    questionQuizFilter.disabled = data.length === 0;
+
+                    data.forEach(quiz => {
+                        let option = new Option(quiz.name, quiz.id);
+                        questionQuizFilter.add(option);
+                    });
+                });
+        } else {
+            questionQuizFilter.innerHTML = '<option value="">Select Quiz</option>';
+            questionQuizFilter.disabled = true;
+        }
+    }
+
+    function updateDisciplines() {
+        let programId = questionProgramFilter.value;
+        if (programId) {
+            fetch(`/get_disciplines/${programId}`)
+                .then(response => response.json())
+                .then(data => {
+                    questionDisciplineFilter.innerHTML = '<option value="">Select Discipline</option>';
+                    questionLevelFilter.innerHTML = '<option value="">Select Level</option>';
+                    questionSubjectFilter.innerHTML = '<option value="">Select Subject</option>';
+                    questionChapterFilter.innerHTML = '<option value="">Select Chapter</option>';
+                    questionQuizFilter.innerHTML = '<option value="">Select Quiz</option>';
+                    questionDisciplineFilter.disabled = true;
+                    questionLevelFilter.disabled = true;
+                    questionSubjectFilter.disabled = true;
+                    questionChapterFilter.disabled = true;
+                    questionQuizFilter.disabled = true;
+
+                    if (data.length > 0) {
+                        questionDisciplineFilter.disabled = false;
+                        data.forEach(discipline => {
+                            let option = new Option(discipline.name, discipline.id);
+                            questionDisciplineFilter.add(option);
+                        });
+                    }
+                    updateSubjects();
+                });
+        } else {
+            questionDisciplineFilter.innerHTML = '<option value="">Select Discipline</option>';
+            questionLevelFilter.innerHTML = '<option value="">Select Level</option>';
+            questionSubjectFilter.innerHTML = '<option value="">Select Subject</option>';
+            questionChapterFilter.innerHTML = '<option value="">Select Chapter</option>';
+            questionQuizFilter.innerHTML = '<option value="">Select Quiz</option>';
+            questionDisciplineFilter.disabled = true;
+            questionLevelFilter.disabled = true;
+            questionSubjectFilter.disabled = true;
+            questionChapterFilter.disabled = true;
+            questionQuizFilter.disabled = true;
+        }
+    }
+
+    function updateLevels() {
+        let disciplineId = questionDisciplineFilter.value;
+        if (disciplineId) {
+            fetch(`/get_levels/${disciplineId}`)
+                .then(response => response.json())
+                .then(data => {
+                    questionLevelFilter.innerHTML = '<option value="">Select Level</option>';
+                    questionSubjectFilter.innerHTML = '<option value="">Select Subject</option>';
+                    questionChapterFilter.innerHTML = '<option value="">Select Chapter</option>';
+                    questionQuizFilter.innerHTML = '<option value="">Select Quiz</option>';
+                    questionLevelFilter.disabled = true;
+                    questionSubjectFilter.disabled = true;
+                    questionChapterFilter.disabled = true;
+                    questionQuizFilter.disabled = true;
+
+                    if (data.length > 0) {
+                        questionLevelFilter.disabled = false;
+                        data.forEach(level => {
+                            let option = new Option(level.name, level.id);
+                            questionLevelFilter.add(option);
+                        });
+                    }
+                    updateSubjects();
+                });
+        } else {
+            questionLevelFilter.innerHTML = '<option value="">Select Level</option>';
+            questionSubjectFilter.innerHTML = '<option value="">Select Subject</option>';
+            questionChapterFilter.innerHTML = '<option value="">Select Chapter</option>';
+            questionQuizFilter.innerHTML = '<option value="">Select Quiz</option>';
+            questionLevelFilter.disabled = true;
+            questionSubjectFilter.disabled = true;
+            questionChapterFilter.disabled = true;
+            questionQuizFilter.disabled = true;
+        }
+    }
+
+    // Add event listeners
+    questionProgramFilter.addEventListener("change", updateDisciplines);
+    questionDisciplineFilter.addEventListener("change", updateLevels);
+    questionLevelFilter.addEventListener("change", updateSubjects);
+    questionSubjectFilter.addEventListener("change", updateChapters);
+    questionChapterFilter.addEventListener("change", updateQuizzes);
+
+    // Ensure subjects are loaded properly on page load if filters were applied
+    updateSubjects();
+});
+</script>    
+{% endblock %}

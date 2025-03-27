@@ -1,0 +1,176 @@
+/* Flash Messages */
+.flash-messages {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1050;
+    max-width: 400px;
+}
+
+.flash-messages .alert {
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 10px 15px;
+    font-size: 14px;
+    animation: fadeIn 0.5s ease-in, fadeOut 0.5s 4.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+
+/* Left Section: Profile Image */
+.profile-left {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 250px;
+}
+
+.profile-pic {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+}
+
+.upload-btn, .delete-btn {
+    display: block;
+    margin: 10px auto;
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+}
+
+.upload-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.upload-btn:hover {
+    background-color: #0056b3;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #a71d2a;
+}
+
+/* Right Section: Profile Info */
+.profile-right {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 600px;
+}
+
+.profile-right h2 {
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.profile-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.profile-info .info-item {
+    width: 48%;
+    font-size: 14px;
+}
+
+.profile-info label {
+    font-weight: bold;
+    color: #555;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.profile-info input, .profile-info select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Buttons */
+.btn-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.edit-btn, .save-btn, .cancel-btn {
+    padding: 8px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+}
+
+.edit-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.save-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.cancel-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+.edit-btn:hover { background-color: #0056b3; }
+.save-btn:hover { background-color: #218838; }
+.cancel-btn:hover { background-color: #5a6268; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .profile-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-right, .profile-left {
+        width: 90%;
+    }
+
+    .profile-info .info-item {
+        width: 100%;
+    }
+}

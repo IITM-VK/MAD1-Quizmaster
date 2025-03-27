@@ -1,0 +1,405 @@
+{% extends "admin_base.html" %}
+
+{% block title %} Subjects & Chapters Management {% endblock %}
+
+{% block additional_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/subjects_chapters.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Flash Messages -->
+<div class="flash-messages" id="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {% if category == 'success' %}
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                    {% elif category == 'error' %}
+                        <i class="bi bi-exclamation-circle-fill me-2"></i>
+                    {% elif category == 'info' %}
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                    {% elif category == 'warning' %}
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {% endif %}
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<div class="sc-container">
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link {% if request.args.get('tab') == 'subjects' or not request.args.get('tab') %}active{% endif %}" 
+                href="{{ url_for('subjects_chapters', tab='subjects') }}">Subjects</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.args.get('tab') == 'chapters' %}active{% endif %}" 
+                href="{{ url_for('subjects_chapters', tab='chapters') }}">Chapters</a>
+        </li>
+    </ul>
+
+
+    <div class="tab-content mt-3">
+        
+        <!-- Subjects Tab -->
+        <div class="tab-pane fade {% if request.args.get('tab') == 'subjects' or not request.args.get('tab') %}show active{% endif %}" id="subjects">
+            <!-- Filters for Subjects -->
+            <form method="GET" action="{{ url_for('subjects_chapters', tab='subjects') }}" class="filters">
+                <input type="hidden" name="tab" value="subjects">
+
+                <select class="form-select" id="subjectProgramFilter" name="program">
+                    <option value="">Select Program</option>
+                    {% for program in programs %}
+                        <option value="{{ program.id }}" {% if request.args.get('program')|int == program.id and request.args.get('tab') == 'subjects' %}selected{% endif %}>
+                            {{ program.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <select class="form-select" id="subjectDisciplineFilter" name="discipline" disabled>
+                    <option value="">Select Discipline</option>
+                    {% for discipline in disciplines %}
+                        <option value="{{ discipline.id }}" {% if request.args.get('discipline', '')|int == discipline.id and request.args.get('tab') == 'subjects' %}selected{% endif %}>
+                            {{ discipline.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            
+                <select class="form-select" id="subjectLevelFilter" name="level" disabled>
+                    <option value="">Select Level</option>
+                    {% for level in levels %}
+                        <option value="{{ level.id }}" {% if request.args.get('level', '')|int == level.id and request.args.get('tab') == 'subjects' %}selected{% endif %}>
+                            {{ level.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="{{ url_for('subjects_chapters', tab='subjects') }}" class="btn btn-secondary">Clear Filters</a>
+            </form>
+
+            <!-- Add Subject Button -->
+            <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#addSubjectModal">➕ Add Subject</button>
+
+            <!-- Subjects Table -->
+            <table class="table table-striped mt-3">
+                <thead>
+                    <tr>
+                        <th>Subject Name</th>
+                        <th>Program</th>
+                        <th>Discipline</th>
+                        <th>Level</th>
+                        <th>Total Chapters</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subject in subjects %}
+                    <tr>
+                        <td>{{ subject.name }}</td>
+                        <td>{{ subject.program.name }}</td>
+                        <td>{{ subject.discipline.name if subject.discipline else 'None' }}</td>
+                        <td>{{ subject.level.name if subject.level else 'None' }}</td>
+                        <td>{{ subject.chapters|length }}</td>
+                        <td>{{ subject.description }}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editSubjectModal{{ subject.id }}">✏️ Edit</button>
+                            <form method="POST" action="{{ url_for('delete_subject', id=subject.id) }}" onsubmit="return confirm('Are you sure?');">
+                                <button type="submit" class="btn btn-danger btn-sm">🗑️ Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Chapters Tab -->
+        <div class="tab-pane fade {% if request.args.get('tab') == 'chapters' %}show active{% endif %}" id="chapters">
+            <!-- Filters for Chapters -->
+            <form method="GET" action="{{ url_for('subjects_chapters', tab='chapters') }}" class="filters">
+                <input type="hidden" name="tab" value="chapters">
+
+                <select class="form-select" id='chapterProgramFilter' name="program">
+                    <option value="">Select Program</option>
+                    {% for program in programs %}
+                        <option value="{{ program.id }}" {% if request.args.get('program')|int == program.id and request.args.get('tab') == 'chapters' %}selected{% endif %}>
+                            {{ program.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <select class="form-select" id="chapterDisciplineFilter" name="discipline" disabled>
+                    <option value="">Select Discipline</option>
+                    {% for discipline in disciplines %}
+                        <option value="{{ discipline.id }}" {% if request.args.get('discipline', '')|int == discipline.id and request.args.get('tab') == 'chapters' %}selected{% endif %}>
+                            {{ discipline.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            
+                <select class="form-select" id="chapterLevelFilter" name="level" disabled>
+                    <option value="">Select Level</option>
+                    {% for level in levels %}
+                        <option value="{{ level.id }}" {% if request.args.get('level', '')|int == level.id and request.args.get('tab') == 'chapters' %}selected{% endif %}>
+                            {{ level.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            
+                <select class="form-select" id="chapterSubjectFilter" name="subject" disabled>
+                    <option value="">Select Subject</option>
+                    {% for subject in subjects %}
+                        <option value="{{ subject.id }}" {% if request.args.get('subject', '')|int == subject.id and request.args.get('tab') == 'chapters' %}selected{% endif %}>
+                            {{ subject.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="{{ url_for('subjects_chapters', tab='chapters') }}" class="btn btn-secondary">Clear Filters</a>
+            </form>
+
+
+            <!-- Add Chapter Button -->
+            <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#addChapterModal">➕ Add Chapter</button>
+
+            <!-- Chapters Table -->
+            <table class="table table-striped mt-3">
+                <thead>
+                    <tr>
+                        <th>Chapter Name</th>
+                        <th>Subject Name</th>
+                        <th>Description</th>
+                        <th>Total Quizzes</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for chapter in chapters %}
+                    <tr>
+                        <td>{{ chapter.name }}</td>
+                        <td>{{ chapter.subject.name }}</td>
+                        <td>{{ chapter.description }}</td>
+                        <td>{{ chapter.quizzes|length }}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editChapterModal{{ chapter.id }}">✏️ Edit</button>
+                            <form method="POST" action="{{ url_for('delete_chapter', id=chapter.id) }}" onsubmit="return confirm('Are you sure?');">
+                                <button type="submit" class="btn btn-danger btn-sm">🗑️ Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% include 'modals/add_subject_modal.html' %}
+{% include 'modals/add_chapter_modal.html' %}
+{% include 'modals/edit_subject_modal.html' %}
+{% include 'modals/edit_chapter_modal.html' %}
+
+{% endblock %}
+
+{% block additional_js %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Auto-dismiss flash messages after 5 seconds
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            alert.classList.add('fade');
+            setTimeout(() => alert.remove(), 500); // Allows fade-out effect before removal
+        });
+    }, 5000);
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let programFilter = document.getElementById("subjectProgramFilter");
+        let disciplineFilter = document.getElementById("subjectDisciplineFilter");
+        let levelFilter = document.getElementById("subjectLevelFilter");
+
+        // Fetch programs on page load (optional)
+        fetch('/get_programs')
+            .then(response => response.json())
+            .then(data => {
+                programFilter.innerHTML = '<option value="">Select Program</option>';
+                data.forEach(program => {
+                    let option = new Option(program.name, program.id);
+                    programFilter.add(option);
+                });
+            });
+
+        // When a Program is selected, fetch related Disciplines
+        programFilter.addEventListener("change", function() {
+            let programId = programFilter.value;
+            if (programId) {
+                fetch(`/get_disciplines/${programId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        disciplineFilter.innerHTML = '<option value="">Select Discipline</option>';
+                        levelFilter.innerHTML = '<option value="">Select Level</option>';
+                        disciplineFilter.disabled = true;
+                        levelFilter.disabled = true;
+
+                        if (data.length > 0) {
+                            disciplineFilter.disabled = false;
+                            data.forEach(discipline => {
+                                let option = new Option(discipline.name, discipline.id);
+                                disciplineFilter.add(option);
+                            });
+                        }
+                    });
+            } else {
+                disciplineFilter.innerHTML = '<option value="">Select Discipline</option>';
+                levelFilter.innerHTML = '<option value="">Select Level</option>';
+                disciplineFilter.disabled = true;
+                levelFilter.disabled = true;
+            }
+        });
+
+        // When a Discipline is selected, fetch related Levels
+        disciplineFilter.addEventListener("change", function() {
+            let disciplineId = disciplineFilter.value;
+            if (disciplineId) {
+                fetch(`/get_levels/${disciplineId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        levelFilter.innerHTML = '<option value="">Select Level</option>';
+                        levelFilter.disabled = true;
+
+                        if (data.length > 0) {
+                            levelFilter.disabled = false;
+                            data.forEach(level => {
+                                let option = new Option(level.name, level.id);
+                                levelFilter.add(option);
+                            });
+                        }
+                    });
+            } else {
+                levelFilter.innerHTML = '<option value="">Select Level</option>';
+                levelFilter.disabled = true;
+            }
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let chapterProgramFilter = document.getElementById("chapterProgramFilter");
+        let chapterDisciplineFilter = document.getElementById("chapterDisciplineFilter");
+        let chapterLevelFilter = document.getElementById("chapterLevelFilter");
+        let chapterSubjectFilter = document.getElementById("chapterSubjectFilter");
+
+        function updateSubjects() {
+            let programId = chapterProgramFilter.value || "";
+            let disciplineId = chapterDisciplineFilter.value || "";
+            let levelId = chapterLevelFilter.value || "";
+
+            if (programId || disciplineId || levelId) {
+                fetch(`/get_subjects?program_id=${programId}&discipline_id=${disciplineId}&level_id=${levelId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        chapterSubjectFilter.innerHTML = '<option value="">Select Subject</option>';
+                        chapterSubjectFilter.disabled = data.length === 0;
+
+                        data.forEach(subject => {
+                            let option = new Option(subject.name, subject.id);
+                            chapterSubjectFilter.add(option);
+                        });
+
+                        // Restore previous selection if available
+                        let selectedSubject = "{{ request.args.get('subject', '') }}";
+                        if (selectedSubject) {
+                            chapterSubjectFilter.value = selectedSubject;
+                        }
+                    });
+            } else {
+                chapterSubjectFilter.innerHTML = '<option value="">Select Subject</option>';
+                chapterSubjectFilter.disabled = true;
+            }
+        }
+
+        function updateDisciplines() {
+            let programId = chapterProgramFilter.value;
+            if (programId) {
+                fetch(`/get_disciplines/${programId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        chapterDisciplineFilter.innerHTML = '<option value="">Select Discipline</option>';
+                        chapterLevelFilter.innerHTML = '<option value="">Select Level</option>';
+                        chapterSubjectFilter.innerHTML = '<option value="">Select Subject</option>';
+                        chapterDisciplineFilter.disabled = true;
+                        chapterLevelFilter.disabled = true;
+                        chapterSubjectFilter.disabled = true;
+
+                        if (data.length > 0) {
+                            chapterDisciplineFilter.disabled = false;
+                            data.forEach(discipline => {
+                                let option = new Option(discipline.name, discipline.id);
+                                chapterDisciplineFilter.add(option);
+                            });
+                        }
+                        updateSubjects();
+                    });
+            } else {
+                chapterDisciplineFilter.innerHTML = '<option value="">Select Discipline</option>';
+                chapterLevelFilter.innerHTML = '<option value="">Select Level</option>';
+                chapterSubjectFilter.innerHTML = '<option value="">Select Subject</option>';
+                chapterDisciplineFilter.disabled = true;
+                chapterLevelFilter.disabled = true;
+                chapterSubjectFilter.disabled = true;
+            }
+        }
+
+        function updateLevels() {
+            let disciplineId = chapterDisciplineFilter.value;
+            if (disciplineId) {
+                fetch(`/get_levels/${disciplineId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        chapterLevelFilter.innerHTML = '<option value="">Select Level</option>';
+                        chapterSubjectFilter.innerHTML = '<option value="">Select Subject</option>';
+                        chapterLevelFilter.disabled = true;
+                        chapterSubjectFilter.disabled = true;
+
+                        if (data.length > 0) {
+                            chapterLevelFilter.disabled = false;
+                            data.forEach(level => {
+                                let option = new Option(level.name, level.id);
+                                chapterLevelFilter.add(option);
+                            });
+                        }
+                        updateSubjects();
+                    });
+            } else {
+                chapterLevelFilter.innerHTML = '<option value="">Select Level</option>';
+                chapterSubjectFilter.innerHTML = '<option value="">Select Subject</option>';
+                chapterLevelFilter.disabled = true;
+                chapterSubjectFilter.disabled = true;
+            }
+        }
+
+        // Add event listeners
+        chapterProgramFilter.addEventListener("change", updateDisciplines);
+        chapterDisciplineFilter.addEventListener("change", updateLevels);
+        chapterLevelFilter.addEventListener("change", updateSubjects);
+
+        // Ensure subjects are loaded properly on page load if filters were applied
+        updateSubjects();
+    });
+</script>
+
+{% endblock %}

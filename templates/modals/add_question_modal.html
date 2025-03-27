@@ -1,0 +1,70 @@
+<div class="modal fade" id="addQuestionModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Question</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('add_question') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Quiz Title</label>
+                        <select name="quiz_id" class="form-select" required>
+                            <option value="">Select Quiz</option>
+                            {% for quiz in quizzes %}
+                                <option value="{{ quiz.id }}">{{ quiz.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Question Title</label>
+                        <input type="text" name="title" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Question Statement</label>
+                        <textarea name="statement" class="form-control" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Option 1</label>
+                        <input type="text" name="option_1" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Option 2</label>
+                        <input type="text" name="option_2" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Option 3</label>
+                        <input type="text" name="option_3" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Option 4</label>
+                        <input type="text" name="option_4" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Correct Option</label>
+                        <select name="correct_option" class="form-select">
+                            <option value="1">Option 1</option>
+                            <option value="2">Option 2</option>
+                            <option value="3">Option 3</option>
+                            <option value="4">Option 4</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Marks per Question</label>
+                        <input type="number" name="marks" class="form-control" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Question</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

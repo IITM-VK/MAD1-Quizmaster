@@ -1,0 +1,73 @@
+{% for question in questions %}
+<div class="modal fade" id="editQuestionModal{{ question.id }}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Question</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('edit_question', id=question.id) }}">
+                    <div class="mb-3">
+                        <label class="form-label">Quiz Title</label>
+                        <select name="quiz_id" class="form-select" required>
+                            {% for quiz in quizzes %}
+                                <option value="{{ quiz.id }}" {% if question.quiz_id == quiz.id %}selected{% endif %}>
+                                    {{ quiz.title }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Question Title</label>
+                        <input type="text" name="title" class="form-control" value="{{ question.title }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Question Statement</label>
+                        <textarea name="statement" class="form-control" required>{{ question.statement }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Option 1</label>
+                        <input type="text" name="option_1" class="form-control" value="{{ question.option_1 }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Option 2</label>
+                        <input type="text" name="option_2" class="form-control" value="{{ question.option_2 }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Option 3</label>
+                        <input type="text" name="option_3" class="form-control" value="{{ question.option_3 }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Option 4</label>
+                        <input type="text" name="option_4" class="form-control" value="{{ question.option_4 }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Correct Option</label>
+                        <select name="correct_option" class="form-select">
+                            <option value="1" {% if question.correct_option == 1 %}selected{% endif %}>Option 1</option>
+                            <option value="2" {% if question.correct_option == 2 %}selected{% endif %}>Option 2</option>
+                            <option value="3" {% if question.correct_option == 3 %}selected{% endif %}>Option 3</option>
+                            <option value="4" {% if question.correct_option == 4 %}selected{% endif %}>Option 4</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Marks per Question</label>
+                        <input type="number" name="marks" class="form-control" value="{{ question.marks }}" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}

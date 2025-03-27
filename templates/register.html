@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Page</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            background-color: #ffffff;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Left Section */
+        .left-section {
+            width: 60%;
+            height: 100%;
+            position: relative;
+            background: url("static/Images/login.jpg") center/cover no-repeat;
+        }
+
+        .left-section .content-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1050;
+            max-width: 400px;
+        }
+
+        .flash-messages .alert {
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 10px 15px;
+            font-size: 14px;
+            animation: fadeIn 0.5s, fadeOut 0.5s 4.5s; /* Appear and disappear animation */
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Right Section */
+        .right-section {
+            width: 40%;
+            padding: 80px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            position: relative;
+        }
+
+        /* Logo */
+        .logo {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        /* Registration Content */
+        .registration-content h2 {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: left;
+        }
+
+        .form-group {
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #007BFF;
+            box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            width: 30%;
+            padding: 5px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .form-links {
+            text-align: right;
+        }
+
+        .form-links {
+            font-size: 14px;
+            text-decoration: none;
+            color: #FF0000;
+            transition: all 0.3s ease;
+        }
+
+        .form-links:hover {
+            color: darkred;
+        }
+
+        @media (max-width: 768px) {
+            .left-section {
+                display: none;
+            }
+
+            .right-section {
+                flex: 1;
+                padding: 20px;
+            }
+
+            .flash-messages {
+                top: 10px;
+                right: 5%;
+                max-width: 90%;
+            }
+
+            .flash-messages .alert {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Left Section -->
+    <div class="left-section">
+        <div class="content-overlay">
+            Welcome to the QuizVerse! Start your learning journey today.
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {% if category == 'success' %}
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                    {% elif category == 'error' %}
+                        <i class="bi bi-exclamation-circle-fill me-2"></i>
+                    {% elif category == 'info' %}
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                    {% elif category == 'warning' %}
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {% endif %}
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Right Section -->
+    <div class="right-section">
+        <!-- Logo -->
+        <div class="logo">
+            <img src="static/Images/logo.jpg" alt="Logo">
+        </div>
+
+        <!-- Registration Content -->
+        <div class="registration-content">
+            <h2>Create an Account</h2>
+            <form  method="POST" action="{{ url_for('register') }}">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.full_name(class_="form-control small-input", placeholder="Full Name") }}
+                </div>
+                <div class="form-group">
+                    {{ form.username(class_="form-control small-input", placeholder="Username / Email ID") }}
+                </div>
+                <div class="form-group">
+                    {{ form.password(class_="form-control small-input", placeholder="Password") }}
+                </div>
+                <div class="form-group">
+                    {{ form.confirm_password(class_="form-control small-input", placeholder="Confirm Password") }}
+                </div>
+                <div class="form-group">
+                    {{ form.academic_qualification(class_="form-control small-input") }}
+                </div>
+                <div class="form-group">
+                    {{ form.dob(class_="form-control small-input") }}
+                </div>
+                <div class="form-group">
+                    {{ form.program(class_="form-control small-input") }}
+                </div>
+                <div class="form-group">
+                    {{ form.discipline(class_="form-control small-input") }}
+                </div>
+                <div class="form-group">
+                    {{ form.level(class_="form-control small-input") }}
+                </div>
+                <div class="form-group">
+                    {{ form.gender(class_="form-control small-input") }}
+                </div>
+                <div class="form-group">
+                    {{ form.contact_number(class_="form-control small-input", placeholder="Contact Number") }}
+                </div>
+                <div class = "form-actions">
+                {{ form.submit(class_="btn") }}
+                <a href="{{ url_for('login') }}" class = "form-links">Existing User? Login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script>
+    // Auto-dismiss flash messages after 5 seconds
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            alert.classList.add('fade');
+            setTimeout(() => alert.remove(), 500); // Give time for fade-out
+        });
+    }, 5000);
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const programDropdown = document.getElementById('program');
+    const disciplineDropdown = document.getElementById('discipline');
+    const levelDropdown = document.getElementById('level');
+
+    let programData = {}; // Store program details dynamically
+
+    // Fetch and populate programs
+    fetch('/get_programs')
+        .then(response => response.json())
+        .then(data => {
+            programDropdown.innerHTML = '<option value="">Select Program</option>';
+            data.forEach(program => {
+                programDropdown.innerHTML += `<option value="${program.id}">${program.name}</option>`;
+                programData[program.id] = { has_disciplines: program.has_disciplines };
+            });
+        });
+
+    // Handle program selection change
+    programDropdown.addEventListener('change', function () {
+        const programId = this.value;
+        const programInfo = programData[programId];
+
+        // Reset dropdowns
+        disciplineDropdown.innerHTML = '<option value="">Select Discipline</option>';
+        levelDropdown.innerHTML = '<option value="">Select Level</option>';
+        disciplineDropdown.disabled = true;
+        levelDropdown.disabled = true;
+
+        if (!programId) return; // No program selected
+
+        if (!programInfo.has_disciplines) {
+            // No disciplines for this program, so disable both
+            disciplineDropdown.innerHTML = '<option value="">No Discipline Required</option>';
+            levelDropdown.innerHTML = '<option value="">No Level Required</option>';
+            return;
+        }
+
+        // Fetch disciplines dynamically
+        fetch(`/get_disciplines/${programId}`)
+            .then(response => response.json())
+            .then(data => {
+                disciplineDropdown.innerHTML = '<option value="">Select Discipline</option>';
+                data.forEach(discipline => {
+                    disciplineDropdown.innerHTML += `<option value="${discipline.id}" data-has-levels="${discipline.has_levels}">${discipline.name}</option>`;
+                });
+                disciplineDropdown.disabled = false;
+            });
+    });
+
+    // Handle discipline selection change
+    disciplineDropdown.addEventListener('change', function () {
+        const disciplineId = this.value;
+        const selectedOption = this.options[this.selectedIndex];
+        const hasLevels = selectedOption.dataset.hasLevels === "true"; // Check if discipline has levels
+
+        // Reset levels dropdown
+        levelDropdown.innerHTML = '<option value="">Select Level</option>';
+        levelDropdown.disabled = true;
+
+        if (!disciplineId || !hasLevels) {
+            // No levels required for this discipline
+            levelDropdown.innerHTML = '<option value="">No Level Required</option>';
+            return;
+        }
+
+        // Fetch levels dynamically
+        fetch(`/get_levels/${disciplineId}`)
+            .then(response => response.json())
+            .then(data => {
+                levelDropdown.innerHTML = '<option value="">Select Level</option>';
+                data.forEach(level => {
+                    levelDropdown.innerHTML += `<option value="${level.id}">${level.name}</option>`;
+                });
+                levelDropdown.disabled = false;
+            });
+    });
+});
+</script>
+    
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

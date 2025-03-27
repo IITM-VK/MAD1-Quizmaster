@@ -1,0 +1,36 @@
+{% for level in levels %}
+<div class="modal fade" id="editLevelModal{{ level.id }}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Level</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('edit_level', id=level.id) }}">
+                    <input type="hidden" name="id" value="{{ level.id }}">
+                    <div class="mb-3">
+                        <label class="form-label">Level Name</label>
+                        <input type="text" name="name" class="form-control" value="{{ level.name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Discipline</label>
+                        <select name="discipline" class="form-select" required>
+                            {% for discipline in disciplines %}
+                                <option value="{{ discipline.id }}" {% if discipline.id == level.discipline.id %}selected{% endif %}>
+                                    {{ discipline.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control">{{ level.description }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}

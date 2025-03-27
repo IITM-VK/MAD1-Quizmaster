@@ -1,0 +1,49 @@
+/* Admin Summary Page Styles */
+.container {
+    max-width: 1200px;
+}
+
+.card {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.chart-canvas {
+    max-width: 800px;
+    max-height: 500px;
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    background-color: #f8f9fa;
+}
+
+.table td, .table th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.bg-primary {
+    background-color: #007bff !important;
+}
+
+.bg-success {
+    background-color: #28a745 !important;
+}
+
+.bg-warning {
+    background-color: #ffc107 !important;
+    color: black !important;
+}

@@ -1,0 +1,96 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Dashboard - QuizVerse{% endblock %}
+
+{% block additional_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+{% endblock %}
+
+
+{% block content %}
+<div class="dashboard-container">
+    
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+        <div class="card">
+            <span class="icon">🖥️</span>
+            <h3>Total Programs</h3>
+            <p>{{ total_programs }}</p>
+        </div>
+        <div class="card">
+            <span class="icon">❄️</span>
+            <h3>Total Disciplines</h3>
+            <p>{{ total_disciplines }}</p>
+        </div>
+        <div class="card">
+            <span class="icon">🌳</span>
+            <h3>Total Levels</h3>
+            <p>{{ total_levels }}</p>
+        </div>
+        <div class="card">
+            <span class="icon">📚</span>
+            <h3>Total Subjects</h3>
+            <p>{{ total_subjects }}</p>
+        </div>
+        <div class="card">
+            <span class="icon">📄</span>
+            <h3>Total Chapters</h3>
+            <p>{{ total_chapters }}</p>
+        </div>
+        <div class="card">
+            <span class="icon">❓</span>
+            <h3>Total Quizzes</h3>
+            <p>{{ total_quizzes }}</p>
+        </div>
+        <div class="card">
+            <span class="icon">📝</span>
+            <h3>Total Questions</h3>
+            <p>{{ total_questions }}</p>
+        </div>
+        <div class="card">
+            <span class="icon">👥</span>
+            <h3>Total Users</h3>
+            <p>{{ total_users }}</p>
+        </div>
+    </div>
+
+    <!-- Recent Activities & Quick Actions -->
+    <div class="dashboard-sections">
+        <div class="recent-activities">
+            <h3>Recent Activities</h3>
+            <div class="activity-box">
+                <!-- Recent activity logs will appear here -->
+            </div>
+        </div>
+        
+        <div class="quick-actions">
+            <h3>Quick Actions</h3>
+            <button class="btn orange" data-bs-toggle="modal" data-bs-target="#addProgramModal">Add New Program</button>
+
+            <button class="btn blue" data-bs-toggle="modal" data-bs-target="#addDisciplineModal">Add New Discipline</button>
+
+            <button class="btn green" data-bs-toggle="modal" data-bs-target="#addLevelModal">Add New Level</button>
+
+            <button class="btn purple" data-bs-toggle="modal" data-bs-target="#addSubjectModal">Add New Subject</button>
+
+            <button class="btn pink" data-bs-toggle="modal" data-bs-target="#addChapterModal">Add New Chapter</button>
+
+            <!-- Buttons for future modals (disabled for now) -->
+            <button class="btn red" disabled>Add New Quiz (Coming Soon)</button>
+            <button class="btn teal" disabled>Add New Question (Coming Soon)</button>
+        </div>
+    </div>
+
+</div>
+
+{% include 'modals/add_program_modal.html' %}
+{% include 'modals/add_discipline_modal.html' %}
+{% include 'modals/add_level_modal.html' %}
+{% include 'modals/add_subject_modal.html' %}
+{% include 'modals/add_chapter_modal.html' %}
+
+{% endblock %}
+
+{% block additional_js %}
+<script src="{{ url_for('static', filename='js/admin_dashboard.js') }}" defer></script>
+{% endblock %}
