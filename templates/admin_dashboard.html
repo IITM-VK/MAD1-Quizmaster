@@ -75,9 +75,9 @@
 
             <button class="btn pink" data-bs-toggle="modal" data-bs-target="#addChapterModal">Add New Chapter</button>
 
-            <!-- Buttons for future modals (disabled for now) -->
-            <button class="btn red" disabled>Add New Quiz (Coming Soon)</button>
-            <button class="btn teal" disabled>Add New Question (Coming Soon)</button>
+            <button class="btn red" data-bs-toggle="modal" data-bs-target="#addQuizModal">Add New Quiz </button>
+
+            <button class="btn teal" data-bs-toggle="modal" data-bs-target="#addQuestionModal">Add New Question </button>
         </div>
     </div>
 
@@ -88,6 +88,8 @@
 {% include 'modals/add_level_modal.html' %}
 {% include 'modals/add_subject_modal.html' %}
 {% include 'modals/add_chapter_modal.html' %}
+{% include 'modals/add_quiz_modal.html' %}
+{% include 'modals/add_question_modal.html' %}
 
 {% endblock %}
 

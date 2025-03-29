@@ -12,48 +12,75 @@
 
     <!-- Filter Section -->
     <div class="card p-3">
-        <div class="d-flex flex-wrap gap-2">
-            <select class="form-select" style="max-width: 200px;">
-                <option selected>Select Program</option>
-            </select>
-            <select class="form-select" style="max-width: 200px;">
-                <option selected>Select Discipline</option>
-            </select>
-            <select class="form-select" style="max-width: 200px;">
-                <option selected>Select Level</option>
-            </select>
-            <select class="form-select" style="max-width: 200px;">
-                <option selected>Select Subject</option>
-            </select>
-            <select class="form-select" style="max-width: 200px;">
-                <option selected>Select Chapter</option>
-            </select>
-            <button class="btn btn-outline-primary">Apply Filters</button>
-            <button class="btn btn-outline-secondary">Clear Filters</button>
-        </div>
+        <form method="GET" action="{{ url_for('test') }}">
+            <div class="d-flex flex-wrap gap-2" style="margin-left: 0px;">
+                <select name="program_id" id="program" class="form-select" style="max-width: 200px;" onchange="updateFilters()">
+                    <option value="">Select Program</option>
+                    {% for program in programs %}
+                    <option value="{{ program.id }}">{{ program.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <select name="discipline_id" id="discipline" class="form-select" style="max-width: 200px;" onchange="updateFilters()" disabled>
+                    <option value="">Select Discipline</option>
+                    {% for discipline in disciplines %}
+                    <option value="{{ discipline.id }}">{{ discipline.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <select name="level_id" id="level" class="form-select" style="max-width: 200px;" onchange="updateFilters()" disabled>
+                    <option value="">Select Level</option>
+                    {% for level in levels %}
+                    <option value="{{ level.id }}">{{ level.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <select name="subject_id" id="subject" class="form-select" style="max-width: 200px;" onchange="updateFilters()" disabled>
+                    <option value="">Select Subject</option>
+                    {% for subject in subjects %}
+                    <option value="{{ subject.id }}">{{ subject.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <select name="chapter_id" id="chapter" class="form-select" style="max-width: 200px;" disabled>
+                    <option value="">Select Chapter</option>
+                    {% for chapter in chapters %}
+                    <option value="{{ chapter.id }}">{{ chapter.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit" class="btn btn-outline-primary">Apply Filters</button>
+                <button type="button" class="btn btn-outline-secondary" onclick="clearFilters()">Clear Filters</button>
+            </div>
+        </form>
     </div>
 
     <!-- Test List -->
+    {% if quizzes %}
     <div class="card mt-3">
         <div class="list-group">
-            {% for test in tests %}
-            <div class="list-group-item d-flex justify-content-between align-items-center">
+            {% for quiz in quizzes %}
+            <div class="list-group-item d-flex justify-content-between align-items-center" style="margin-left: 0px;">
                 <div>
                     <span class="me-2">📄</span>
-                    <strong>{{ test.name }}</strong>
-                    <span class="text-muted ms-2">- {{ test.code }}</span>
+                    <strong>{{ quiz.title }}</strong>
                     <div class="small text-muted">
-                        ⏰ {{ test.time }} | 📅 {{ test.date }}
+                        ⏰ {{ quiz.time_duration }} mins | 📅 {{ quiz.date_of_quiz }}
                     </div>
                 </div>
                 <div>
-                    <span class="me-3">📊</span>
-                    <a href="{{ test.url }}" class="text-primary text-decoration-none">Launch Test</a>
+                    <a href="{{ url_for('view_test_details', quiz_id=quiz.id) }}" class="text-primary text-decoration-none">
+                        <span class="me-3" style="cursor: pointer;">📊</span>
+                    </a>
+                    <a href="{{url_for ('launch_test', quiz_id=quiz.id) }}" class="text-primary text-decoration-none">Launch Test</a>
                 </div>
             </div>
             {% endfor %}
         </div>
     </div>
+    {% else %}
+    <div class="alert alert-warning mt-3">No tests available. Apply filters to find quizzes.</div>
+    {% endif %}
 </div>
 {% endblock %}
 

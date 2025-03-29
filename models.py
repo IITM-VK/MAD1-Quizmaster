@@ -21,6 +21,10 @@ class Admin(db.Model, UserMixin):
 
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    @property
+    def is_active(self):
+        return True
 
 
 class User(db.Model, UserMixin):
@@ -56,6 +60,13 @@ class User(db.Model, UserMixin):
 
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    @property
+    def is_active(self):
+        return self.status.lower() == 'active'
+    
+    def set_status(self, active):
+        self.status = 'active' if active else 'inactive'
 
 
 class Program(db.Model):
@@ -138,7 +149,6 @@ class Score(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    timestamp_attempted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     total_scored = db.Column(db.Integer, nullable=False)
     total_marks = db.Column(db.Integer, nullable=False)
     status = db.Column(db.String(50), nullable=False)  # pass/fail
@@ -146,8 +156,12 @@ class Score(db.Model):
     total_questions = db.Column(db.Integer, nullable=False)
     attempts = db.Column(db.Integer, nullable=False)
     correct_answers = db.Column(db.Integer, nullable=False)
-    time_taken = db.Column(db.Integer, nullable=False)  # Time in minutes
+    time_taken = db.Column(db.Integer, nullable=False)  # Time in seconds
 
+    quiz = db.relationship("Quiz", backref="scores")
+    
+    # **Ensure unique attempts for each user & quiz**
+    __table_args__ = (db.UniqueConstraint('user_id', 'quiz_id', name='unique_user_quiz_attempt'),)
 
 class Feedback(db.Model):
     __tablename__ = 'feedback'

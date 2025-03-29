@@ -1,0 +1,142 @@
+{% extends "user_base.html" %}
+
+{% block title %}Performance Analysis{% endblock %}
+
+{% block additional_css %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/performance.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Tabs -->
+    <ul class="nav nav-tabs" id="performanceTabs">
+        <li class="nav-item">
+            <a class="nav-link active" id="scores-tab" data-bs-toggle="tab" href="#scores">Scores</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="summary-tab" data-bs-toggle="tab" href="#summary">Summary</a>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3">
+        <!-- Scores Tab -->
+        <div id="scores" class="tab-pane fade show active">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Quiz Title</th>
+                            <th>Date</th>
+                            <th>Subject</th>
+                            <th>Chapter</th>
+                            <th>Questions</th>
+                            <th>Attempts</th>
+                            <th>Correct</th>
+                            <th>Accuracy (%)</th>
+                            <th>Total Marks</th>
+                            <th>Score</th>
+                            <th>Percentage</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scoreTableBody">
+                        <!-- Scores will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Summary Tab -->
+        <div id="summary" class="tab-pane fade">
+            <div class="row">
+                <div class="col-md-6">
+                    <canvas id="subjectChart"></canvas>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="monthChart"></canvas>
+                </div>
+            </div>
+            <div class="mt-4">
+                <canvas id="performanceTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    fetch("/get_scores")
+        .then(response => response.json())
+        .then(scores => {
+            const tableBody = document.getElementById("scoreTableBody");
+            scores.forEach(score => {
+                let row = `<tr>
+                    <td>${score.quiz_title}</td>
+                    <td>${score.date_attempted}</td>
+                    <td>${score.subject}</td>
+                    <td>${score.chapter}</td>
+                    <td>${score.questions}</td>
+                    <td>${score.attempts}</td>
+                    <td>${score.correct}</td>
+                    <td>${score.accuracy}%</td>
+                    <td>${score.total_marks}</td>
+                    <td>${score.score}</td>
+                    <td>${score.percentage}%</td>
+                    <td>${score.status}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        });
+
+    fetch("/get_performance_summary")
+        .then(response => response.json())
+        .then(data => {
+            // Subject-wise Quiz Attempts
+            new Chart(document.getElementById("subjectChart"), {
+                type: 'bar',
+                data: {
+                    labels: data.subjects,
+                    datasets: [{
+                        label: "Quizzes Attempted",
+                        data: data.quiz_counts,
+                        backgroundColor: "rgba(54, 162, 235, 0.6)"
+                    }]
+                }
+            });
+
+            // Month-wise Quiz Attempts
+            new Chart(document.getElementById("monthChart"), {
+                type: 'bar',
+                data: {
+                    labels: data.months,
+                    datasets: [{
+                        label: "Quizzes Per Month",
+                        data: data.month_counts,
+                        backgroundColor: "rgba(255, 99, 132, 0.6)"
+                    }]
+                }
+            });
+
+            // Performance Trends
+            new Chart(document.getElementById("performanceTrendChart"), {
+                type: 'line',
+                data: {
+                    labels: data.dates,
+                    datasets: [{
+                        label: "Performance (%)",
+                        data: data.scores,
+                        borderColor: "rgba(75, 192, 192, 1)",
+                        fill: false
+                    }]
+                }
+            });
+        });
+});
+</script>
+{% endblock %}

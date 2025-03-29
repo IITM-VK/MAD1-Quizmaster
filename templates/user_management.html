@@ -59,7 +59,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% if not user.is_admin %}  <!-- Prevent actions on admin -->
+                            {% if not user.is_admin %}
                                 <a href="{{ url_for('toggle_user_status', user_id=user.id) }}" class="btn btn-sm {% if user.is_active %}btn-warning{% else %}btn-success{% endif %}">
                                     {% if user.is_active %}Deactivate{% else %}Activate{% endif %}
                                 </a>

@@ -1,0 +1,78 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 90%;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    box-shadow: 0px 0px 10px #aaa;
+    border-radius: 10px;
+}
+
+.nav-tabs {
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.nav-tabs .nav-item {
+    flex-grow: 1;
+    text-align: center;
+}
+
+.nav-tabs .nav-link {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #495057;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #007bff;
+    border-bottom: 2px solid #007bff;
+    color: white;
+    border-radius: 5px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: white;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: #007bff;
+    color: white;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+canvas {
+    width: 100% !important;
+    height: auto;
+    max-width: 600px;
+    margin: 20px auto;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .nav-tabs .nav-item {
+        flex-grow: unset;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+    }
+}

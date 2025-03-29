@@ -10,11 +10,11 @@ from functools import wraps
 from flask_login import login_required, current_user, login_user, logout_user
 import os
 
-# Login Required Decorators
+# =================== Login Required Decorators ========================
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated or not session.get('admin_logged_in'):
+        if not current_user.is_authenticated or not isinstance(current_user, Admin):
             session.clear()
             flash("Please login as Admin to access this page.", "error")
             return redirect(url_for('login'))
@@ -24,13 +24,13 @@ def admin_required(f):
 def user_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated:
+        if not current_user.is_authenticated or isinstance(current_user, Admin):
             flash("Please login to access this page.", "error")
             return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated_function
 
-## Authentication Routes ##
+#================ Authentication Routes =============================
 @app.route('/')
 def login():
     return render_template('login.html')
@@ -42,38 +42,39 @@ def login_post():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        # Check if it's an admin login
+        # Try finding the user in Admin table first
         admin = Admin.query.filter_by(username=username).first()
-        if admin: 
-            if admin.verify_password(password):
-                session.clear()
-                session['admin_logged_in'] = True
-                session['admin_id'] = admin.id
-                login_user(admin)  # Ensures Flask-Login tracks admin session
-                return redirect(url_for('admin_dashboard'))
-            else:
-                flash("Invalid admin password!", "error")
-                return redirect(url_for('login'))
+        if admin and admin.verify_password(password):
+            session.clear()
+            session['user_type'] = 'admin'  # Store user type in session
+            login_user(admin)
+            return redirect(url_for('admin_dashboard'))
 
-        # Check if it's a user login
+        # Try finding the user in User table
         user = User.query.filter_by(username=username).first()
         if user:
+            if not user.is_active:
+                flash("Your account is inactive. Contact the administrator.", "error")
+                return redirect(url_for('login'))
+
             if user.verify_password(password):
-                login_user(user)  # Ensures Flask-Login tracks user session
-                user.last_login = datetime.now(timezone.utc) # ✅ Update last login time
+                session.clear()
+                session['user_type'] = 'user'  # Store user type in session
+                login_user(user)
+                user.last_login = datetime.now(timezone.utc)  # ✅ Update last login time
                 db.session.commit()
                 return redirect(url_for('user_dashboard'))
-            else:
-                flash("Invalid user password!", "error")
-                return redirect(url_for('login'))
-        
+
+            flash("Invalid password!", "error")
+            return redirect(url_for('login'))
+
         # If no user or admin found
         flash("User not found! Please register first.", "error")
         return redirect(url_for('login'))
 
     return render_template('login.html')
 
-# Fetch data from database
+# ================ Fetch data from database ========================
 @app.route('/get_programs')
 def get_programs():
     programs = Program.query.all()
@@ -142,7 +143,7 @@ def get_quizzes(chapter_id):
     quiz_list = [{"id": quiz.id, "name": quiz.title} for quiz in quizzes]
     return jsonify(quiz_list)
 
-# Registration Route
+# ====================== Registration Route =========================
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
@@ -178,6 +179,7 @@ def register():
 
     return render_template('register.html', form=form)
 
+# =================== Dashboard Routes =============================
 
 # Admin dashboard route
 @app.route('/admin_dashboard')
@@ -197,7 +199,11 @@ def admin_dashboard():
         programs=Program.query.all(),
         disciplines=Discipline.query.all(),
         levels=Level.query.all(),
-        subjects=Subject.query.all()
+        subjects=Subject.query.all(),
+        chapters=Chapter.query.all(),
+        quizzes=Quiz.query.all(),
+        questions=Question.query.all(),
+        users=User.query.all()
     )
 
 # User dashboard route
@@ -209,18 +215,30 @@ def user_dashboard():
 
 # Logout Route
 @app.route('/logout')
+@login_required
 def logout():
-    logout_user()
     session.clear()
+    logout_user()
     flash("You have been logged out successfully.", "success")
     return redirect(url_for('login'))
+
+# Admin Logout Route
+@app.route('/admin_logout')
+@login_required
+def admin_logout():
+    session.clear() 
+    logout_user()  
+    flash("Admin logged out successfully.", "success")
+    return redirect(url_for('login'))
+
+# =================== Profile Page Routes==========================
 
 UPLOAD_FOLDER = "static/uploads/profile_pics"
 DEFAULT_PROFILE_PIC = "static/images/default_pic.jpg"
 
-# Profile Page Route
+# Profile Route
 @app.route('/profile', methods=['GET'])
-@login_required
+@user_required
 def profile():
     user = User.query.get(current_user.id)
     programs = Program.query.all()
@@ -236,7 +254,7 @@ def profile():
 
 # Update Profile Route
 @app.route('/update_profile', methods=['POST'])
-@login_required
+@user_required
 def update_profile():
     user = User.query.get(current_user.id)
     form = ProfileUpdateForm(request.form)
@@ -289,7 +307,7 @@ def update_profile():
 
 # Profile Picture Upload Route
 @app.route('/upload_profile_pic', methods=['POST'])
-@login_required
+@user_required
 def upload_profile_pic():
     if 'profile_pic' not in request.files:
         return jsonify({"success": False, "message": "No file uploaded.", "category": "error"})
@@ -322,7 +340,7 @@ def upload_profile_pic():
 
 # Profile Picture Delete Route
 @app.route('/delete_profile_pic', methods=['POST'])
-@login_required
+@user_required
 def delete_profile_pic():
     if current_user.profile_image_url and "uploads/profile_pics" in current_user.profile_image_url:
         old_path = os.path.join(app.root_path, current_user.profile_image_url.lstrip('/'))
@@ -340,13 +358,202 @@ def delete_profile_pic():
     })
 
 
-# Test Route
-@app.route('/test')
-@login_required
+#  ======================= Test Route =============================
+@app.route('/test', methods=['GET'])
+@user_required
 def test():
     user = User.query.get(current_user.id)
-    return render_template('test.html', user=user, full_name=user.full_name if user else "User")
 
+    # Fetch filter values from request args
+    program_id = request.args.get('program_id')
+    discipline_id = request.args.get('discipline_id')
+    level_id = request.args.get('level_id')
+    subject_id = request.args.get('subject_id')
+    chapter_id = request.args.get('chapter_id')
+
+    # Fetch available options for filters
+    programs = Program.query.all()
+    disciplines = Discipline.query.all()
+    levels = Level.query.all()
+    subjects = Subject.query.all()
+    chapters = Chapter.query.all()
+
+    # Base query for quizzes
+    query = Quiz.query.join(Chapter).join(Subject)
+
+    # Apply filters dynamically
+    if program_id:
+        query = query.filter(Subject.program_id == program_id)
+    if discipline_id:
+        query = query.filter(Subject.discipline_id == discipline_id)
+    if level_id:
+        query = query.filter(Subject.level_id == level_id)
+    if subject_id:
+        query = query.filter(Quiz.chapter.has(subject_id=subject_id))
+    if chapter_id:
+        query = query.filter(Quiz.chapter_id == chapter_id)
+
+    quizzes = query.all()
+
+    return render_template(
+        'test.html',
+        user=user,
+        full_name=user.full_name if user else "User",
+        programs=programs,
+        disciplines=disciplines,
+        levels=levels,
+        subjects=subjects,
+        chapters=chapters,
+        quizzes=quizzes
+    )
+
+# ======== Test Details Route ============
+@app.route('/view_test_details/<int:quiz_id>')
+@user_required
+def view_test_details(quiz_id):
+    user = User.query.get(current_user.id)
+    quiz = Quiz.query.get_or_404(quiz_id)
+    total_questions = Question.query.filter_by(quiz_id=quiz_id).count()
+    return render_template('view_test_details.html', user=user, full_name=user.full_name if user else "User", quiz=quiz, total_questions=total_questions)
+
+# ========= Quiz Attempt Route =============
+@app.route('/launch_test/<int:quiz_id>')
+@login_required
+def launch_test(quiz_id):
+    """ Renders the quiz attempt page with all necessary data """
+    user = User.query.get(current_user.id)
+    quiz = Quiz.query.get_or_404(quiz_id)
+    questions = Question.query.filter_by(quiz_id=quiz_id).all()
+    
+    return render_template('launch_test.html', user=user, quiz=quiz, questions=questions)
+
+@app.route('/submit_quiz', methods=['POST'])
+@user_required
+def submit_quiz():
+    data = request.json
+    quiz_id = data.get('quiz_id')
+    user_id = current_user.id
+    answers = data.get('answers', {})
+    time_taken = data.get('timeTaken',0)
+    attempts = data.get("attempts", 0)
+
+    if not quiz_id:
+        return jsonify({"error": "Missing quiz ID"}), 400
+
+    quiz = Quiz.query.get_or_404(quiz_id)
+    questions = Question.query.filter_by(quiz_id=quiz_id).all()
+    
+    total_marks = sum(q.marks for q in questions)
+    correct_answers = 0
+    total_scored = 0 
+
+    for q in questions:
+        question_id = str(q.id)  # Ensure consistency with JS object keys
+        user_answer = answers.get(question_id, None) 
+
+        if user_answer is not None:  # ✅ Only count attempted questions
+            if int(user_answer) == q.correct_option:
+                correct_answers += 1
+                total_scored += q.marks
+
+    # **Check if the user already has an existing score record**
+    existing_score = Score.query.filter_by(user_id=user_id, quiz_id=quiz_id).first()
+
+    if existing_score:
+        # **Update the existing score instead of inserting a new one**
+        existing_score.total_scored = total_scored
+        existing_score.status = 'pass' if total_scored >= quiz.passing_marks else 'fail'
+        existing_score.date_attempted = datetime.utcnow().date()
+        existing_score.total_questions = len(questions)
+        existing_score.attempts = attempts
+        existing_score.correct_answers = correct_answers
+        existing_score.time_taken = time_taken
+    else:
+        # **Create a new score entry if no previous record exists**
+        new_score = Score(
+            quiz_id=quiz_id,
+            user_id=user_id,
+            total_scored=total_scored,
+            total_marks=total_marks,
+            status='pass' if total_scored >= quiz.passing_marks else 'fail',
+            date_attempted=datetime.utcnow().date(),
+            total_questions=len(questions),
+            attempts=attempts,
+            correct_answers=correct_answers,
+            time_taken=time_taken
+        )
+        db.session.add(new_score)
+
+    db.session.commit()
+
+    return jsonify({"message": "Quiz submitted successfully", "score": total_scored, "redirect": url_for('test')})
+
+# ==================== Performance Route =========================
+@app.route('/performance')
+@user_required
+def performance():
+    user = User.query.get(current_user.id)
+    scores = (Score.query
+                .join(Quiz)
+                .join(Chapter, Quiz.chapter_id == Chapter.id)
+                .join(Subject, Chapter.subject_id == Subject.id)
+                .filter(Score.user_id == current_user.id)
+                .all())
+    return render_template('performance.html', scores=scores, user=user, full_name=user.full_name if user else "User")
+
+@app.route('/get_scores', methods=['GET'])
+@user_required
+def get_scores():
+    user_id = current_user.id
+    scores = Score.query.filter_by(user_id=user_id).all()
+
+    score_data = [{
+        "quiz_title": getattr(s.quiz, 'title', 'N/A'),
+        "date_attempted": s.date_attempted.strftime('%d-%m-%Y'),
+        "subject": getattr(s.quiz.chapter.subject, 'name', 'N/A'),
+        "chapter": getattr(s.quiz.chapter, 'name', 'N/A'),
+        "questions": s.total_questions,
+        "attempts": s.attempts,
+        "correct": s.correct_answers,
+        "accuracy": round((s.correct_answers / s.total_questions) * 100, 2) if s.total_questions > 0 else 0,
+        "total_marks": s.total_marks,
+        "score": s.total_scored,
+        "percentage": round((s.total_scored / s.total_marks) * 100, 2) if s.total_marks > 0 else 0,
+        "status": s.status
+    } for s in scores]
+    return jsonify(score_data)
+
+@app.route('/get_performance_summary', methods=['GET'])
+@user_required
+def get_performance_summary():
+    user_id = current_user.id
+    scores = Score.query.filter_by(user_id=user_id).all()
+
+    subject_quiz_count = {}
+    month_quiz_count = {}
+    month_performance = {}
+
+    for s in scores:
+        subject_name = s.quiz.chapter.subject.name
+        month = s.date_attempted.strftime('%Y-%m')
+        
+        subject_quiz_count[subject_name] = subject_quiz_count.get(subject_name, 0) + 1
+        month_quiz_count[month] = month_quiz_count.get(month, 0) + 1
+        
+        if month not in month_performance:
+            month_performance[month] = {'total_score': 0, 'total_marks': 0}
+        
+        month_performance[month]['total_score'] += s.total_scored
+        month_performance[month]['total_marks'] += s.total_marks
+
+    return jsonify({
+        "subjects": list(subject_quiz_count.keys()),
+        "quiz_counts": list(subject_quiz_count.values()),
+        "months": list(month_quiz_count.keys()),
+        "month_counts": list(month_quiz_count.values()),
+        "dates": list(month_performance.keys()),
+        "scores": [round((data['total_score'] / data['total_marks']) * 100, 2) if data['total_marks'] > 0 else 0 for data in month_performance.values()]
+    })
 
 # ==================== PROGRAMS, DISCIPLINES & LEVELS ====================
 
@@ -515,6 +722,7 @@ def delete_level(id):
     return redirect(url_for('programs_disciplines_levels', tab='levels'))
 
 # ==================== SUBJECTS & CHAPTERS ====================
+
 @app.route('/subjects_chapters', methods=['GET'])
 @admin_required
 def subjects_chapters():
@@ -657,6 +865,7 @@ def delete_chapter(id):
 
 
 # ==================== QUIZZES & QUESTIONS ====================
+
 @app.route('/quiz_management', methods=['GET'])
 @admin_required
 def quiz_management():
@@ -711,15 +920,14 @@ def quiz_management():
         chapters=Chapter.query.all()
     )
 
-
 # ========== Add Actions ==========
 @app.route('/add_quiz', methods=['POST'])
 @admin_required
 def add_quiz():
     title = request.form.get("title")
     chapter_id = request.form.get("chapter_id")
-    date = request.form.get("date")
-    duration = request.form.get("duration")
+    date_of_quiz_str = request.form.get("date_of_quiz")
+    time_duration = request.form.get("time_duration")
     total_marks = request.form.get("total_marks")
     passing_marks = request.form.get("passing_marks")
     description = request.form.get("description")
@@ -727,12 +935,18 @@ def add_quiz():
     if not title or not chapter_id:
         flash("Quiz title and chapter are required!", "error")
         return redirect(url_for('quiz_management', tab='quizzes'))
+    
+    try:
+        date_of_quiz = datetime.strptime(date_of_quiz_str, "%Y-%m-%d").date()  # Convert to date
+    except ValueError:
+        flash("Invalid date format!", "error")
+        return redirect(url_for('quiz_management', tab='quizzes'))
 
     new_quiz = Quiz(
         title=title,
         chapter_id=chapter_id,
-        date=date,
-        duration=duration,
+        date_of_quiz=date_of_quiz,
+        time_duration=time_duration,
         total_marks=total_marks,
         passing_marks=passing_marks,
         description=description
@@ -785,11 +999,17 @@ def edit_quiz(id):
 
     quiz.title = request.form.get("title")
     quiz.chapter_id = request.form.get("chapter_id")
-    quiz.date = request.form.get("date")
-    quiz.duration = request.form.get("duration")
+    quiz.date_of_quiz_str = request.form.get("date_of_quiz")
+    quiz.time_duration = request.form.get("time_duration")
     quiz.total_marks = request.form.get("total_marks")
     quiz.passing_marks = request.form.get("passing_marks")
     quiz.description = request.form.get("description")
+    
+    try:
+        quiz.date_of_quiz = datetime.strptime(quiz.date_of_quiz_str, "%Y-%m-%d").date()
+    except ValueError:
+        flash("Invalid date format!", "error")
+        return redirect(url_for('quiz_management', tab='quizzes'))
 
     db.session.commit()
     flash("Quiz updated successfully!", "success")
@@ -838,7 +1058,7 @@ def delete_question(id):
 # ==================== Admin Summary ====================
 
 @app.route('/admin_summary')
-@login_required
+@admin_required
 def admin_summary():
     # Fetch Subject-Wise Top Scores (Following Subject → Chapter → Quiz → Score)
     top_scores = db.session.query(
@@ -883,8 +1103,9 @@ def admin_summary():
 
 
 # ==================== User Management ====================
+
 @app.route('/user_management')
-@login_required
+@admin_required
 def user_management():
     search_query = request.args.get('search', '').strip()
     status_filter = request.args.get('status', '')
@@ -897,31 +1118,27 @@ def user_management():
         users_query = users_query.filter(User.username.ilike(f'%{search_query}%'))
 
     if status_filter == 'active':
-        users_query = users_query.filter(User.status == 'active')
+        users_query = users_query.filter(User.is_active == True)
     elif status_filter == 'inactive':
-        users_query = users_query.filter(User.status == 'inactive')
+        users_query = users_query.filter(User.is_active == False)
 
     users = users_query.order_by(User.last_login.desc().nulls_last()).all()
     
     return render_template("user_management.html", users=users)
 
 @app.route('/toggle_user_status/<int:user_id>')
-@login_required
+@admin_required
 def toggle_user_status(user_id):
     user = User.query.get_or_404(user_id)
-    
-    # Prevent modifying admin accounts
-    if Admin.query.filter_by(username=user.username).first():
-        flash("Cannot modify an admin account!", "danger")
-        return redirect(url_for('user_management'))
 
-    user.status = 'inactive' if user.status == 'active' else 'active'
+    # Toggle active status
+    user.set_status(not user.is_active)
     db.session.commit()
     flash("User status updated successfully!", "success")
     return redirect(url_for('user_management'))
 
 @app.route('/delete_user/<int:user_id>')
-@login_required
+@admin_required
 def delete_user(user_id):
     user = User.query.get_or_404(user_id)
 
