@@ -4,6 +4,7 @@ from models import db, Admin, User, Program, Discipline, Level, Subject, Chapter
 from app import app
 from sqlalchemy.sql import text
 from datetime import datetime, timedelta, timezone
+from datetime import date
 from werkzeug.utils import secure_filename
 from forms import RegistrationForm, ProfileUpdateForm
 from functools import wraps
@@ -445,7 +446,8 @@ def test():
         levels=levels,
         subjects=subjects,
         chapters=chapters,
-        quizzes=quizzes
+        quizzes=quizzes,
+        current_date=date.today()
     )
 
 # ======== Test Details Route ============
@@ -464,6 +466,12 @@ def launch_test(quiz_id):
     """ Renders the quiz attempt page with all necessary data """
     user = User.query.get(current_user.id)
     quiz = Quiz.query.get_or_404(quiz_id)
+    
+    # Check if quiz is accessible today
+    if quiz.date_of_quiz != date.today():
+        flash("This quiz is not available today.", "warning")
+        return redirect(url_for('test'))
+
     questions = Question.query.filter_by(quiz_id=quiz_id).all()
     
     return render_template('launch_test.html', user=user, quiz=quiz, questions=questions)

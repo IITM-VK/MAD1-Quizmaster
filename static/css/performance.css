@@ -27,14 +27,19 @@ body {
 .nav-tabs .nav-link {
     font-size: 1.1rem;
     font-weight: bold;
-    color: #495057;
+    color: darkgrey;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #007bff;
+    text-decoration: none;
 }
 
 .nav-tabs .nav-link.active {
-    background-color: #007bff;
-    border-bottom: 2px solid #007bff;
-    color: white;
-    border-radius: 5px;
+    color: #007bff;
+    background-color: #e9ecef;
+    border: 2px solid #007bff;
+    border-radius: 8px;
 }
 
 table {

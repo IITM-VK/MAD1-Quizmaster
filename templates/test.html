@@ -72,7 +72,11 @@
                     <a href="{{ url_for('view_test_details', quiz_id=quiz.id) }}" class="text-primary text-decoration-none">
                         <span class="me-3" style="cursor: pointer;">📊</span>
                     </a>
-                    <a href="{{url_for ('launch_test', quiz_id=quiz.id) }}" class="text-primary text-decoration-none">Launch Test</a>
+                    {% if quiz.date_of_quiz == current_date %}
+                        <a href="{{ url_for('launch_test', quiz_id=quiz.id) }}" class="text-primary text-decoration-none">Launch Test</a>
+                    {% else %}
+                        <span class="text-secondary">Not Available</span>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
