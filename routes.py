@@ -213,6 +213,47 @@ def user_dashboard():
     user = User.query.get(current_user.id)
     return render_template('user_dashboard.html', user=current_user, full_name=user.full_name if user else "User")
 
+# Search Route
+@app.route('/admin_search')
+@admin_required
+def admin_search():
+    query = request.args.get('query', '').strip().lower()
+
+    if not query:
+        return redirect(url_for('admin_dashboard'))
+
+    users = User.query.filter(User.username.ilike(f"%{query}%")).all()
+    programs = Program.query.filter(Program.name.ilike(f"%{query}%")).all()
+    disciplines = Discipline.query.filter(Discipline.name.ilike(f"%{query}%")).all()
+    levels = Level.query.filter(Level.name.ilike(f"%{query}%")).all()
+    subjects = Subject.query.filter(Subject.name.ilike(f"%{query}%")).all()
+    chapters = Chapter.query.filter(Chapter.name.ilike(f"%{query}%")).all()
+    quizzes = Quiz.query.filter(Quiz.title.ilike(f"%{query}%")).all()
+
+    return render_template("admin_search_results.html", query=query, users=users, programs=programs,
+                            disciplines=disciplines, levels=levels, subjects=subjects, chapters=chapters, quizzes=quizzes)
+
+
+@app.route('/user_search')
+@user_required
+def user_search():
+    user = User.query.get(current_user.id)
+    query = request.args.get('query', '').strip().lower()
+
+    if not query:
+        return redirect(url_for('user_dashboard'))
+
+    programs = Program.query.filter(Program.name.ilike(f"%{query}%")).all()
+    disciplines = Discipline.query.filter(Discipline.name.ilike(f"%{query}%")).all()
+    levels = Level.query.filter(Level.name.ilike(f"%{query}%")).all()
+    subjects = Subject.query.filter(Subject.name.ilike(f"%{query}%")).all()
+    chapters = Chapter.query.filter(Chapter.name.ilike(f"%{query}%")).all()
+    quizzes = Quiz.query.filter(Quiz.title.ilike(f"%{query}%")).all()
+
+    return render_template("user_search_results.html", query=query, programs=programs,
+                            disciplines=disciplines, levels=levels, subjects=subjects, chapters=chapters, quizzes=quizzes, user=current_user, full_name=user.full_name if user else "User")
+
+
 # Logout Route
 @app.route('/logout')
 @login_required
