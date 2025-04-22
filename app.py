@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from sqlalchemy.orm import configure_mappers
 from flask import session
-from flask_migrate import Migrate
+from flask_migrate import Migrate, upgrade
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -34,5 +34,6 @@ import forms
 
 from seed_data import seed_database
 
-# with app.app_context():
-#    seed_database()
+with app.app_context():
+    upgrade()
+    seed_database()
