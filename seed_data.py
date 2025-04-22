@@ -4,6 +4,8 @@ from models import db, Admin, Program, Discipline, Level
 
 # Initialize the database and populate it with data
 def seed_database():
+    db.create_all()  # Create all tables in the database
+
     if not Admin.query.first():
         # Add a single admin
         admin = Admin(username="admin", password="798974")
