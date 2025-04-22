@@ -6,7 +6,7 @@ A multi-user quiz application for exam preparation across various courses, built
 ## 💻 Demo
 
 - Link to a live version (Please! Open in the Desktop)
-  - Link
+  - 
 
 ---
 
