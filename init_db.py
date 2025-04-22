@@ -21,11 +21,11 @@ with app.app_context():
         name="12th Program",
         description="12th-grade HSC curriculum covering Science, Commerce, and Arts."
     )
-    program_9 = Program(
-        name="9th Program",
-        description="9th-grade SSC curriculum for foundational academic knowledge."
+    program_10 = Program(
+        name="10th Program",
+        description="10th-grade SSC curriculum for foundational academic knowledge."
     )
-    db.session.add_all([program_bs, program_12, program_9])
+    db.session.add_all([program_bs, program_12, program_10])
 
     # Add Disciplines for BS Program
     discipline_ds = Discipline(

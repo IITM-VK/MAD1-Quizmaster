@@ -1,15 +1,19 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify, session
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from models import db, Admin, User, Program, Discipline, Level, Subject, Chapter, Quiz, Question, Score, Filter, RecentActivity, Feedback
 from app import app
 from sqlalchemy.sql import text
 from datetime import datetime, timedelta, timezone
 from datetime import date
 from werkzeug.utils import secure_filename
-from forms import RegistrationForm, ProfileUpdateForm
+from forms import RegistrationForm, ProfileUpdateForm, ForgotPasswordForm, OTPForm, ResetPasswordForm
 from functools import wraps
 from flask_login import login_required, current_user, login_user, logout_user
 import os
+import smtplib
+from email.mime.text import MIMEText
+import random
+
 
 # =================== Login Required Decorators ========================
 def admin_required(f):
@@ -49,6 +53,7 @@ def login_post():
             session.clear()
             session['user_type'] = 'admin'  # Store user type in session
             login_user(admin)
+            flash("Welcome Admin!", "success")
             return redirect(url_for('admin_dashboard'))
 
         # Try finding the user in User table
@@ -62,8 +67,9 @@ def login_post():
                 session.clear()
                 session['user_type'] = 'user'  # Store user type in session
                 login_user(user)
-                user.last_login = datetime.now(timezone.utc)  # ✅ Update last login time
+                user.last_login = datetime.now(timezone.utc)  # Update last login time
                 db.session.commit()
+                flash("Login successful. Glad to have you back!", "success")
                 return redirect(url_for('user_dashboard'))
 
             flash("Invalid password!", "error")
@@ -74,6 +80,84 @@ def login_post():
         return redirect(url_for('login'))
 
     return render_template('login.html')
+
+# ================= Forgot password Route =========================
+
+def generate_otp():
+    return str(random.randint(100000, 999999))
+
+def send_otp_email(recipient_email, otp):
+    sender_email = app.config['EMAIL_ADDRESS']
+    sender_password = app.config['EMAIL_PASSWORD']
+    smtp_server = app.config['SMTP_SERVER']
+    smtp_port = app.config['SMTP_PORT']
+
+    msg = MIMEText(f"Your OTP for password reset is: {otp}")
+    msg['Subject'] = "Password Reset OTP"
+    msg['From'] = sender_email
+    msg['To'] = recipient_email
+
+    try:
+        with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+            server.login(sender_email, sender_password)
+            server.sendmail(sender_email, recipient_email, msg.as_string())
+        return True
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+        return False
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    form = ForgotPasswordForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.email.data).first()
+        if user:
+            otp = generate_otp()
+            session['reset_email'] = user.username
+            session['reset_otp'] = otp
+            session['otp_time'] = datetime.utcnow().isoformat()
+            if send_otp_email(user.username, otp):
+                flash('OTP has been sent to your email.', 'success')
+                return redirect(url_for('verify_otp'))
+            else:
+                flash('Error sending email.', 'error')
+        else:
+            flash('No user found with this email.', 'error')
+    return render_template('forgot_password.html', form=form, stage='email')
+
+@app.route('/verify-otp', methods=['GET', 'POST'])
+def verify_otp():
+    if 'reset_email' not in session:
+        return redirect(url_for('forgot_password'))
+
+    form = OTPForm()
+    if form.validate_on_submit():
+        entered_otp = form.otp.data
+        if entered_otp == session.get('reset_otp'):
+            flash('OTP verified! Please reset your password.', 'success')
+            return redirect(url_for('reset_password'))
+        else:
+            flash('Invalid OTP. Please try again.', 'error')
+    return render_template('forgot_password.html', form=form, stage='otp')
+
+@app.route('/reset-password', methods=['GET', 'POST'])
+def reset_password():
+    if 'reset_email' not in session:
+        return redirect(url_for('forgot_password'))
+
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=session['reset_email']).first()
+        if user:
+            user.password_hash = generate_password_hash(form.password.data)
+            db.session.commit()
+            session.pop('reset_email', None)
+            session.pop('reset_otp', None)
+            flash('Password changed successfully! You can login now.', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash('Error: User not found.', 'error')
+    return render_template('forgot_password.html', form=form, stage='reset')
 
 # ================ Fetch data from database ========================
 @app.route('/get_programs')
@@ -136,7 +220,6 @@ def get_chapters(subject_id):
     chapters = Chapter.query.filter_by(subject_id=subject_id).all()
     chapter_list = [{"id": chapter.id, "name": chapter.name} for chapter in chapters]
     return jsonify(chapter_list)
-
 
 @app.route('/get_quizzes/<int:chapter_id>')
 def get_quizzes(chapter_id):
@@ -254,7 +337,6 @@ def user_search():
     return render_template("user_search_results.html", query=query, programs=programs,
                             disciplines=disciplines, levels=levels, subjects=subjects, chapters=chapters, quizzes=quizzes, user=current_user, full_name=user.full_name if user else "User")
 
-
 # Logout Route
 @app.route('/logout')
 @login_required
@@ -292,7 +374,7 @@ def profile():
     form.discipline_id.choices = [('', 'Select Discipline')] + [(d.id, d.name) for d in disciplines]
     form.level_id.choices = [('', 'Select Level')] + [(l.id, l.name) for l in levels]
 
-    return render_template('profile.html', form=form, user=user, full_name=user.full_name if user else "User", programs=programs)
+    return render_template('profile.html', form=form, user=current_user, full_name=user.full_name if user else "User", programs=programs)
 
 # Update Profile Route
 @app.route('/update_profile', methods=['POST'])
@@ -461,7 +543,7 @@ def view_test_details(quiz_id):
 
 # ========= Quiz Attempt Route =============
 @app.route('/launch_test/<int:quiz_id>')
-@login_required
+@user_required
 def launch_test(quiz_id):
     """ Renders the quiz attempt page with all necessary data """
     user = User.query.get(current_user.id)
@@ -500,7 +582,7 @@ def submit_quiz():
         question_id = str(q.id)  # Ensure consistency with JS object keys
         user_answer = answers.get(question_id, None) 
 
-        if user_answer is not None:  # ✅ Only count attempted questions
+        if user_answer is not None:  #  Only count attempted questions
             if int(user_answer) == q.correct_option:
                 correct_answers += 1
                 total_scored += q.marks
@@ -636,7 +718,6 @@ def add_program():
     flash("Program added successfully!", "success")
     return redirect(url_for('programs_disciplines_levels', tab='programs'))
 
-
 @app.route('/add_discipline', methods=['POST'])
 @admin_required
 def add_discipline():
@@ -654,7 +735,6 @@ def add_discipline():
 
     flash("Discipline added successfully!", "success")
     return redirect(url_for('programs_disciplines_levels', tab='disciplines'))
-
 
 @app.route('/add_level', methods=['POST'])
 @admin_required
@@ -690,7 +770,6 @@ def edit_program(id):
     flash("Program updated successfully!", "success")
     return redirect(url_for('programs_disciplines_levels', tab='programs'))
 
-
 @app.route('/edit_discipline/<int:id>', methods=['POST'])
 @admin_required
 def edit_discipline(id):
@@ -706,7 +785,6 @@ def edit_discipline(id):
 
     flash("Discipline updated successfully!", "success")
     return redirect(url_for('programs_disciplines_levels', tab='disciplines'))
-
 
 @app.route('/edit_level/<int:id>', methods=['POST'])
 @admin_required
@@ -739,7 +817,6 @@ def delete_program(id):
     flash("Program and all related disciplines and levels deleted successfully!", "success")
     return redirect(url_for('programs_disciplines_levels', tab='programs'))
 
-
 @app.route('/delete_discipline/<int:id>', methods=['POST'])
 @admin_required
 def delete_discipline(id):
@@ -754,7 +831,6 @@ def delete_discipline(id):
 
     flash("Discipline and all related levels deleted successfully!", "success")
     return redirect(url_for('programs_disciplines_levels', tab='disciplines'))
-
 
 @app.route('/delete_level/<int:id>', methods=['POST'])
 @admin_required
@@ -911,7 +987,6 @@ def delete_chapter(id):
 
     flash("Chapter deleted successfully!", "success")
     return redirect(url_for('subjects_chapters', tab='chapters'))
-
 
 # ==================== QUIZZES & QUESTIONS ====================
 
@@ -1150,7 +1225,6 @@ def admin_summary():
                             active_users=active_users,
                             inactive_users=inactive_users)
 
-
 # ==================== User Management ====================
 
 @app.route('/user_management')
@@ -1195,8 +1269,15 @@ def delete_user(user_id):
     if Admin.query.filter_by(username=user.username).first():
         flash("Cannot delete the admin account!", "danger")
         return redirect(url_for('user_management'))
-
+    
+    if user.profile_image_url and "uploads/profile_pics" in user.profile_image_url:
+        image_path = os.path.join(app.root_path, user.profile_image_url.lstrip('/'))
+        if os.path.exists(image_path):
+            os.remove(image_path)
+            
     db.session.delete(user)
     db.session.commit()
     flash("User deleted successfully!", "success")
     return redirect(url_for('user_management'))
+
+# ===================================================== End of the file ===================================================

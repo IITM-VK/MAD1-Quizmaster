@@ -7,13 +7,37 @@
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/user_base.css') }}">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     {% block additional_css %}{% endblock %}
 </head>
 <body>
+    <!-- Flash Messages -->
+    <div class="flash-messages" id="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {% if category == 'success' %}
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                        {% elif category == 'error' %}
+                            <i class="bi bi-exclamation-circle-fill me-2"></i>
+                        {% elif category == 'info' %}
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                        {% elif category == 'warning' %}
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        {% endif %}
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
     <div class="body-container">
         <!-- Header Navigation -->
         <nav class="navbar navbar-expand-lg">
@@ -39,27 +63,25 @@
                 </div>
     
                 <!-- Welcome Message -->
-                <div class="welcome-message d-lg-block d-none">
+                <div class="welcome-message d-lg-block d-none me-5">
                     <span>Welcome! <strong>{{ full_name }}</strong></span>
                 </div>
     
-                <!-- Search and Profile Section -->
-                <div class="d-flex align-items-center">
-                    <div class="search-container me-3">
-                        <form action="{{ url_for('user_search') }}" method="GET" class ="search-box">
-                            <input type="text" name="query" placeholder="Search" class="search-input">
-                            <button type="submit" class="search-button">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </form>
-                    </div>
+                <!-- Search -->
+                <div class="search-container">
+                    <form action="{{ url_for('user_search') }}" method="GET" class ="search-box">
+                        <input type="text" name="query" placeholder="Search" class="search-input">
+                        <button type="submit" class="search-button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
     
-                    <!-- Profile Image -->
-                    <div class="profile-container">
-                        <a href="{{url_for('profile')}}" class="profile-link">
-                            <img src="{{ url_for('static', filename='images/default_pic.jpg') }}" alt="Profile" class="profile-img">
-                        </a>
-                    </div>
+                <!-- Profile Image -->
+                <div class="profile-container">
+                    <a href="{{url_for('profile')}}" class="profile-link">
+                        <img src="{{ url_for('static', filename='images/default_pic.jpg') }}" alt="Profile" class="profile-img">
+                    </a>
                 </div>
             </div>
         </nav>
@@ -82,10 +104,10 @@
                 </div>
                 <div class="social-links">
                     <span>Get in Touch</span>
-                    <a href="#"><i class="fas fa-envelope"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
-                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="mailto:vivekkumargrd04@gmail.com"><i class="fas fa-envelope"></i></a>
+                    <a href="https://www.instagram.com/_vecna_7"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.linkedin.com/in/vivek-kumar-4b5a20231"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://github.com/IITM-VK"><i class="fab fa-github"></i></a>
                 </div>
             </div>
         </footer>
@@ -93,6 +115,7 @@
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
     // Add smooth scrolling to all links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -104,5 +127,44 @@
         });
     });
     </script>
+    <script>
+        function showFlashMessage(message, category) {
+        const flashMessagesContainer = document.getElementById("flash-messages");
+        if (!flashMessagesContainer) return;
+
+        const alertDiv = document.createElement("div");
+        alertDiv.className = `alert alert-${category} alert-dismissible fade show`;
+        alertDiv.setAttribute("role", "alert");
+
+        const iconHTML = category === 'success' ? '<i class="bi bi-check-circle-fill me-2"></i>' :
+                        category === 'error' ? '<i class="bi bi-exclamation-circle-fill me-2"></i>' :
+                        category === 'info' ? '<i class="bi bi-info-circle-fill me-2"></i>' :
+                        category === 'warning' ? '<i class="bi bi-exclamation-triangle-fill me-2"></i>' : '';
+
+        alertDiv.innerHTML = `${iconHTML} ${message}`;
+
+        flashMessagesContainer.appendChild(alertDiv);
+
+        // Auto-fade out after 5 seconds
+        setTimeout(() => {
+            alertDiv.style.transition = "opacity 0.5s ease-out";
+            alertDiv.style.opacity = "0";
+            setTimeout(() => alertDiv.remove(), 500);
+        }, 5000);
+    }
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(() => {
+                document.querySelectorAll('.flash-messages .alert').forEach(alert => {
+                    alert.style.transition = "opacity 0.5s ease-out";
+                    alert.style.opacity = "0";
+                    setTimeout(() => alert.remove(), 500);
+                });
+            }, 5000);
+        });
+        </script>
+    <!-- Custom JS -->
+    {% block additional_js %}{% endblock %}
 </body>
 </html>

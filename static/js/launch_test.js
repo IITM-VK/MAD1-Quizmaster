@@ -5,12 +5,15 @@ const quizDuration = parseInt(document.getElementById("timer").getAttribute("dat
 let timeLeft = parseInt(document.getElementById("timer").getAttribute("data-time"));
 let currentQuestionIndex = 0;
 let answers = {};
+let timerInterval;
 let totalQuestions = document.querySelectorAll(".question").length;
+let redirectTimeout;
+let redirected = false;
 
 // Start Timer
 function startTimer() {
     const timerElement = document.getElementById("timer");
-    const timerInterval = setInterval(() => {
+    timerInterval = setInterval(() => {
         let minutes = Math.floor(timeLeft / 60);
         let seconds = timeLeft % 60;
         timerElement.innerText = `Time Left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
@@ -59,6 +62,7 @@ function loadQuestion(index) {
     document.querySelectorAll(".question").forEach((q, i) => {
         q.style.display = i === index ? "block" : "none";
     });
+
     currentQuestionIndex = index;
     updateStatus();
 }
@@ -92,6 +96,8 @@ function generateQuestionButtons() {
 
 // Submit the quiz
 function submitQuiz() {
+    clearInterval(timerInterval); // Stop the timer
+
     let timeTaken = quizDuration * 60 - timeLeft; // Corrected timeTaken calculation
     let attempts = Object.values(answers).filter(val => val !== null).length;
 
@@ -112,11 +118,30 @@ function submitQuiz() {
             return;
         }
 
-        alert(`Quiz Submitted! Your Score: ${data.score}`);
-        window.location.href = data.redirect; // Redirect to test page
-    })
-    .catch(error => console.error("❌ Error submitting quiz:", error));
+        const modal = document.getElementById("quiz-modal");
+        const scoreText = document.getElementById("modal-score");
+        scoreText.innerHTML = `<strong>Your Score:</strong> ${data.score}`;
+        modal.classList.add("show");
+
+        document.getElementById("submit-quiz").disabled = true;
+
+        redirectTimeout = setTimeout(() => {
+            if (!redirected) {
+                redirected = true;
+                window.location.href = "/performance";
+            }
+        }, 5000);
+    });
 }
+
+function closeModalAndRedirect() {
+    clearTimeout(redirectTimeout); // Clear auto-redirect timeout
+    if (!redirected) {
+        redirected = true;
+        window.location.href = "/performance";
+    }
+}
+
 
 // Event Listeners
 document.getElementById("save-next").addEventListener("click", nextQuestion);

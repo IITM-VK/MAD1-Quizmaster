@@ -111,11 +111,22 @@
 
         /* Registration Content */
         .registration-content h2 {
-            font-size: 28px;
+            font-size: 22px;
             font-weight: bold;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             color: #333;
             text-align: left;
+        }
+
+        #register-form {
+            background-color: white;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            border: 1px solid #ccc;
+            background: linear-gradient(to bottom right, #f9f9f9, lightblue);
+            animation: fadeIn 0.5s; /* Fade-in effect for form */
         }
 
         .form-group {
@@ -241,40 +252,73 @@
         <!-- Registration Content -->
         <div class="registration-content">
             <h2>Create an Account</h2>
-            <form  method="POST" action="{{ url_for('register') }}">
+            <form id="register-form" method="POST" action="{{ url_for('register') }}">
                 {{ form.hidden_tag() }}
                 <div class="form-group">
                     {{ form.full_name(class_="form-control small-input", placeholder="Full Name") }}
+                    {% for error in form.full_name.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
                 </div>
                 <div class="form-group">
                     {{ form.username(class_="form-control small-input", placeholder="Username / Email ID") }}
+                    {% for error in form.username.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
                 </div>
                 <div class="form-group">
                     {{ form.password(class_="form-control small-input", placeholder="Password") }}
+                    {% for error in form.password.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
                 </div>
                 <div class="form-group">
                     {{ form.confirm_password(class_="form-control small-input", placeholder="Confirm Password") }}
+                    {% for error in form.confirm_password.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
                 </div>
                 <div class="form-group">
                     {{ form.academic_qualification(class_="form-control small-input") }}
+                    {% for error in form.academic_qualification.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
                 </div>
                 <div class="form-group">
                     {{ form.dob(class_="form-control small-input") }}
+                    {% for error in form.dob.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
                 </div>
                 <div class="form-group">
                     {{ form.program(class_="form-control small-input") }}
+                    {% for error in form.program.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
                 </div>
                 <div class="form-group">
                     {{ form.discipline(class_="form-control small-input") }}
+                    {% for error in form.discipline.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
                 </div>
                 <div class="form-group">
                     {{ form.level(class_="form-control small-input") }}
+                    {% for error in form.level.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
                 </div>
                 <div class="form-group">
                     {{ form.gender(class_="form-control small-input") }}
+                    {% for error in form.gender.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
                 </div>
                 <div class="form-group">
                     {{ form.contact_number(class_="form-control small-input", placeholder="Contact Number") }}
+                    {% for error in form.contact_number.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
                 </div>
                 <div class = "form-actions">
                 {{ form.submit(class_="btn") }}

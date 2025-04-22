@@ -8,29 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/launch_test.css') }}">
 </head>
 <body>
-    
-    <!-- Flash Messages -->
-    <div class="flash-messages" id="flash-messages">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {% if category == 'success' %}
-                            <i class="bi bi-check-circle-fill me-2"></i>
-                        {% elif category == 'error' %}
-                            <i class="bi bi-exclamation-circle-fill me-2"></i>
-                        {% elif category == 'info' %}
-                            <i class="bi bi-info-circle-fill me-2"></i>
-                        {% elif category == 'warning' %}
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        {% endif %}
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-    </div>
-
+<div class="page-wrapper">
     <header>
         <h5 id="quiz-title">{{ quiz.title }}</h5>
     </header>
@@ -39,8 +17,8 @@
         <div class="quiz-container" data-quiz-id="{{ quiz.id }}" data-user-id="{{ user.id }}">
             <section class="quiz-content">
                 <div class="quiz-info">
-                    <p>Subject: <span id="subject-name">{{ quiz.chapter.subject.name }}</span></p>
-                    <p>Chapter: <span id="chapter-name">{{ quiz.chapter.name }}</span></p>
+                    <p>Subject: <span id="subject-name">{{ quiz.chapter.subject.name }}</span></p><hr>
+                    <p>Chapter: <span id="chapter-name">{{ quiz.chapter.name }}</span></p><hr>
                     <div class="quiz-meta">
                         <p id="timer" data-time="{{ quiz.time_duration * 60 }}">Time Left: {{ quiz.time_duration }}:00</p>
                     </div>
@@ -48,14 +26,14 @@
                 <div class="question-container">
                     {% for question in questions %}
                         <div class="question" data-question-id="{{ question.id }}" {% if loop.index0 != 0 %}style="display:none"{% endif %}>
-                            <h5>Question {{ loop.index }}:</h5>
-                            <p id="question-marks">Marks per Question: {{ question.marks }}</p>
-                            <p>{{ question.statement }}</p>
+                            <h5>Question {{ loop.index }}</h5>
+                            <p id="question-marks">Marks for correct answer: {{ question.marks }}</p>
+                            <pre>{{ question.statement }}</pre>
                             <div>
-                                <input type="radio" name="option_{{ question.id }}" value="1"> {{ question.option_1 }} <br>
-                                <input type="radio" name="option_{{ question.id }}" value="2"> {{ question.option_2 }} <br>
-                                <input type="radio" name="option_{{ question.id }}" value="3"> {{ question.option_3 }} <br>
-                                <input type="radio" name="option_{{ question.id }}" value="4"> {{ question.option_4 }} <br>
+                                <input type="radio" class="options" name="option_{{ question.id }}" value="1"> {{ question.option_1 }} <br>
+                                <input type="radio" class="options" name="option_{{ question.id }}" value="2"> {{ question.option_2 }} <br>
+                                <input type="radio" class="options" name="option_{{ question.id }}" value="3"> {{ question.option_3 }} <br>
+                                <input type="radio" class="options" name="option_{{ question.id }}" value="4"> {{ question.option_4 }} <br>
                             </div>
                         </div>
                     {% endfor %}
@@ -66,31 +44,34 @@
                 <div class="user-info">
                     <img src="{{ url_for('static', filename='images/default_pic.jpg') }}" alt="User" id="user-pic">
                     <span id="user-name">{{ user.full_name }}</span>
-                </div>
+                </div><hr>
                 <div class="quiz-stats">
                     <button class="status answered">Answered: <span id="answered-count">0</span></button>
                     <button class="status not-answered">Not Answered: <span id="not-answered-count">0</span></button>
                 </div>
+                <div class="question-menu-title"> <p>Question Menu</p> </div>
                 <div class="question-menu" id="question-menu"></div>
             </aside>
         </div>
     </main>
     
     <footer>
-        <button id="prev-question">Previous</button>
-        <button id="save-next">Save & Next</button>
-        <button id="submit-quiz">Submit</button>
+        <button id="prev-question" class = "footer-btn">Previous</button>
+        <button id="save-next" class = "footer-btn">Save & Next</button>
+        <button type="button" class = "footer-btn" id="submit-quiz" >Submit</button>
     </footer>
+</div>
 
-    <!-- Modal for showing quiz results -->
-    <div id="quiz-modal" class="modal">
-        <div class="modal-content">
-            <h3>Quiz Submitted!</h3>
-            <p id="modal-score"></p>
-        </div>
+<!-- Modal for showing quiz results -->
+<div id="quiz-modal" class="modal">
+    <div class="modal-content">
+        <h3>Quiz Submitted!</h3>
+        <p id="modal-score"></p>
+        <button class="btn btn-success mt-3" onclick="closeModalAndRedirect()">Close</button>
     </div>
+</div>
 
-
-    <script src="{{ url_for('static', filename='js/launch_test.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/launch_test.js') }}"></script>
 </body>
 </html>

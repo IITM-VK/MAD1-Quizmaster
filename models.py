@@ -45,7 +45,7 @@ class User(db.Model, UserMixin):
     last_login = db.Column(db.DateTime, nullable=True)
     date_joined = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
-    # 🔹 Add relationships
+    # Add relationships
     program = db.relationship('Program', backref='users')  
     discipline = db.relationship('Discipline', backref='users')
     level = db.relationship('Level', backref='users')

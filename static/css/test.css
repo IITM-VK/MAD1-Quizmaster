@@ -1,0 +1,87 @@
+/* This CSS file is for the test page of the application. It styles the test container, cards, buttons, and other elements to create a visually appealing layout. */
+
+.test-container {
+    width: 90%;
+    margin: auto;
+    padding: 20px;
+    background: linear-gradient(to bottom right, #ffffff, lightblue);
+    background-color: #f8f9fa;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.test-container h4 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #333;
+}
+
+.card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+.form-select {
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 0.95rem;
+}
+
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.test-container .btn {
+    border-radius: 8px;
+    padding: 8px 8px;
+    transition: background-color 0.3s, transform 0.2s ease;
+}
+
+.test-container .btn:hover {
+    transform: scale(1.03);
+}
+
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid #eaeaea;
+    transition: background-color 0.3s ease;
+    padding: 16px 20px;
+}
+
+.list-group-item:hover {
+    background-color: #f1f9ff;
+}
+
+.list-group-item strong {
+    color: #0d6efd;
+    font-size: 1.1rem;
+}
+
+.text-primary.text-decoration-none:hover {
+    text-decoration: underline;
+}
+
+.alert-warning {
+    border-radius: 12px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

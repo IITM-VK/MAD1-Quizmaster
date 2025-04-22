@@ -8,8 +8,29 @@
 
 
 {% block content %}
+<!-- Flash Messages -->
+<div class="flash-messages" id="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {% if category == 'success' %}
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                    {% elif category == 'error' %}
+                        <i class="bi bi-exclamation-circle-fill me-2"></i>
+                    {% elif category == 'info' %}
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                    {% elif category == 'warning' %}
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {% endif %}
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
 <div class="dashboard-container">
-    
     <!-- Summary Cards -->
     <div class="summary-cards">
         <div class="card">
@@ -91,4 +112,17 @@
 {% include 'modals/add_quiz_modal.html' %}
 {% include 'modals/add_question_modal.html' %}
 
+{% endblock %}
+
+{% block additional_js %}
+{% if get_flashed_messages() %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.getElementById('flash-messages');
+            setTimeout(() => {
+                flashMessages.innerHTML = '';
+            }, 5000); // Adjust the timeout duration as needed
+        });
+    </script>
+{% endif %}
 {% endblock %}

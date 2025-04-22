@@ -2,8 +2,12 @@
 
 {% block title %}View Test Details - QuizVerse{% endblock %}
 
+{% block additional_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/view_test_details.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
+<div class="view-container mt-4">
     <h4>View Test Details</h4>
 
     <!-- Breadcrumb Navigation -->

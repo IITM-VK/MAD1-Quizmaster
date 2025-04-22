@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
 
-    // ✅ Profile Picture Upload (Instant Update)
+    //  Profile Picture Upload (Instant Update)
     uploadPicInput.addEventListener("change", function () {
         const formData = new FormData();
         formData.append("profile_pic", uploadPicInput.files[0]);
@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // ✅ Delete Profile Picture (Instant Update)
+    // Delete Profile Picture (Instant Update)
     deletePicButton.addEventListener("click", function () {
         fetch("/delete_profile_pic", { method: "POST" })
         .then(response => response.json())
@@ -127,38 +127,3 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
-
-document.addEventListener("DOMContentLoaded", function () {
-    setTimeout(() => {
-        document.querySelectorAll('.flash-messages .alert').forEach(alert => {
-            alert.style.transition = "opacity 0.5s ease-out";
-            alert.style.opacity = "0";
-            setTimeout(() => alert.remove(), 500);
-        });
-    }, 5000);
-});
-
-function showFlashMessage(message, category) {
-    const flashMessagesContainer = document.getElementById("flash-messages");
-    if (!flashMessagesContainer) return;
-
-    const alertDiv = document.createElement("div");
-    alertDiv.className = `alert alert-${category} alert-dismissible fade show`;
-    alertDiv.setAttribute("role", "alert");
-
-    const iconHTML = category === 'success' ? '<i class="bi bi-check-circle-fill me-2"></i>' :
-                    category === 'error' ? '<i class="bi bi-exclamation-circle-fill me-2"></i>' :
-                    category === 'info' ? '<i class="bi bi-info-circle-fill me-2"></i>' :
-                    category === 'warning' ? '<i class="bi bi-exclamation-triangle-fill me-2"></i>' : '';
-
-    alertDiv.innerHTML = `${iconHTML} ${message}`;
-
-    flashMessagesContainer.appendChild(alertDiv);
-
-    // Auto-fade out after 5 seconds
-    setTimeout(() => {
-        alertDiv.style.transition = "opacity 0.5s ease-out";
-        alertDiv.style.opacity = "0";
-        setTimeout(() => alertDiv.remove(), 500);
-    }, 5000);
-}

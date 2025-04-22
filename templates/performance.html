@@ -3,14 +3,12 @@
 {% block title %}Performance Analysis{% endblock %}
 
 {% block additional_css %}
-
 <link rel="stylesheet" href="{{ url_for('static', filename='css/performance.css') }}">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css">
+
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="performance-container mt-4">
     <!-- Tabs -->
     <ul class="nav nav-tabs" id="performanceTabs">
         <li class="nav-item">
@@ -66,9 +64,9 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     fetch("/get_scores")

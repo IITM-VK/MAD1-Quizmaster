@@ -1,4 +1,4 @@
-.search-container {
+.usersearch-container {
     display: block;
     max-width: 800px;
     margin: 20px auto;
@@ -6,9 +6,12 @@
     background: #ffffff;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
+    animation: fadeIn 0.5s ease-in-out;
+    background: linear-gradient(to bottom right, #ffffff, lightblue);
+    background-color: #f8f9fa;
 }
 
-.search-container h2 {
+.usersearch-container h2 {
     text-align: center;
     font-size: 24px;
     color: #333;
@@ -17,7 +20,7 @@
     padding-bottom: 10px;
 }
 
-.search-container h3 {
+.usersearch-container h3 {
     font-size: 20px;
     margin-top: 20px;
     color: #007bff;
@@ -25,14 +28,14 @@
     padding-left: 10px;
 }
 
-.search-container ul {
+.usersearch-container ul {
     white-space: normal;
     list-style: none;
     padding: 0;
     display: block;
 }
 
-.search-container ul li {
+.usersearch-container ul li {
     background: #f8f9fa;
     margin: 5px 0;
     padding: 10px;
@@ -43,7 +46,7 @@
     width: 100%;
 }
 
-.search-container ul li:hover {
+.usersearch-container ul li:hover {
     background: #e9ecef;
     cursor: pointer;
 }

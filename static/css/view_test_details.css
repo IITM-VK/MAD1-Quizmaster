@@ -1,0 +1,89 @@
+/* This CSS file is for the test page of the application. It styles the test container, cards, buttons, and other elements to create a visually appealing layout. */
+
+.view-container {
+    width: 70%;
+    margin: auto;
+    padding: 20px;
+    background: linear-gradient(to bottom right, #ffffff, lightblue);
+    background-color: #f8f9fa;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Headings */
+h4, h5, h6 {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    background: none;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    color: #aaa;
+}
+
+.breadcrumb a {
+    text-decoration: none;
+    color: #3498db;
+    transition: color 0.3s;
+}
+
+.breadcrumb a:hover {
+    color: #1d6fa5;
+}
+
+/* Card Styling */
+.view-container .card {
+    background-color: white;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s ease;
+}
+
+.view-container .card:hover {
+    transform: translateY(-4px);
+}
+
+/* Table Styling */
+.view-container .table {
+    margin-top: 10px;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.view-container .table th, .view-container .table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.view-container .table th {
+    background-color: #f8f9fc;
+    color: #5d6d7e;
+    text-align: left;
+    width: 30%;
+}
+
+.view-container .table td {
+    background-color: #ffffff;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .table th, .table td {
+        display: block;
+        width: 100%;
+    }
+
+    .table th {
+        background-color: transparent;
+        color: #888;
+    }
+}
