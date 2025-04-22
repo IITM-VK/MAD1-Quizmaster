@@ -6,7 +6,10 @@ A multi-user quiz application for exam preparation across various courses, built
 ## 💻 Demo
 
 - Link to a live version (Please! Open in the Desktop)
-  - 
+
+
+  - Link(https://quizverse-tm9k.onrender.com)
+aacb29c48cf7493f5f047a35c70485e440f0e146
 
 ---
 
