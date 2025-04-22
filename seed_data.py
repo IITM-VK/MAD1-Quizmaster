@@ -3,7 +3,7 @@ from app import app
 from models import db, Admin, Program, Discipline, Level
 
 # Initialize the database and populate it with data
-with app.app_context():
+def seed_database():
     if not Admin.query.first():
         # Add a single admin
         admin = Admin(username="admin", password="798974")

@@ -31,3 +31,8 @@ def load_user(user_id):
 import routes
 configure_mappers()
 import forms
+
+from seed_data import seed_database
+
+with app.app_context():
+    seed_database()
