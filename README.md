@@ -83,6 +83,13 @@ Programs → Disciplines → Levels → Subjects → Chapters → Quiz → Quest
 
 ## 🖼️ Screenshots
 
+<p align="center">
+  <img src="assets/Quizverse 1.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 2.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 3.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 4.png" alt="Image 1" width="45%"/>
+</p>
+
 ---
 
 ## 📁 Folder Structure
@@ -90,6 +97,7 @@ Programs → Disciplines → Levels → Subjects → Chapters → Quiz → Quest
 ```bash
 quizverse/
 │
+├── assets/                # Screenshots of the app pages 
 ├── instance/              # Configuration files
     ├── db.sqlite3         # SQLite database (auto-generated)
 ├── migrations/            # DB migrations
