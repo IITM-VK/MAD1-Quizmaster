@@ -97,6 +97,8 @@ Programs → Disciplines → Levels → Subjects → Chapters → Quiz → Quest
   <img src="assets/Quizverse 11.png" alt="Image 1" width="45%"/>
   <img src="assets/Quizverse 12.png" alt="Image 1" width="45%"/>
   <img src="assets/Quizverse 13.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 14.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 15.png" alt="Image 1" width="45%"/>
 </p>
 
 ---
