@@ -9,7 +9,6 @@ A multi-user quiz application for exam preparation across various courses, built
 
 
   - Link(https://quizverse-tm9k.onrender.com)
-aacb29c48cf7493f5f047a35c70485e440f0e146
 
 ---
 
@@ -83,6 +82,24 @@ Programs → Disciplines → Levels → Subjects → Chapters → Quiz → Quest
 
 ## 🖼️ Screenshots
 
+<p align="center">
+  <img src="assets/Quizverse 1.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 2.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 3.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 4.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 5.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 6.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 7.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 8.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 9.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 10.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 11.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 12.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 13.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 14.png" alt="Image 1" width="45%"/>
+  <img src="assets/Quizverse 15.png" alt="Image 1" width="45%"/>
+</p>
+
 ---
 
 ## 📁 Folder Structure
@@ -90,6 +107,7 @@ Programs → Disciplines → Levels → Subjects → Chapters → Quiz → Quest
 ```bash
 quizverse/
 │
+├── assets/                # Screenshots of the app pages 
 ├── instance/              # Configuration files
     ├── db.sqlite3         # SQLite database (auto-generated)
 ├── migrations/            # DB migrations
